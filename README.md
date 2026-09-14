@@ -1,4 +1,4 @@
-### Welcome
+### BUS 104
 
 Hello and welcome to **BUS 104**!  
 
