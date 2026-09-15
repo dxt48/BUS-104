@@ -2,7 +2,18 @@
 
 Hello and welcome to **BUS 104**!  
 
-This public GitHub repository is the official home for all lecture materials. Everything we use in class — lecture notes, Excel workbooks, Python scripts, data files, and any other supporting resources — will be posted here.
+This public GitHub repository is the official home for all lecture materials. Everything we use in class — lecture notes, Excel workbooks, Python scripts, data files, and any other supporting resources — will be posted here, including links helpful links: 
+
+**Link to the Harvard Case Pack**
+
+<https://hbsp.harvard.edu/import/1456741>
+
+**YouTube Link**
+
+Occasionally, I may post videos on class material. Lectures, however, will not be recorded. All class videos can be found here:
+
+<https://www.youtube.com/playlist?list=PLnRO-Bb2kD78dBaVFGNwp24zNFI1576RT>
+
 
 ---
 
@@ -23,16 +34,6 @@ Lecture materials are organized into **separate folders**, one per lecture.
 - Python code files (`.py`)
 - Data files (`.csv`, `.xlsx`, etc.)
 - Any other files or resources used in that class
-
-**Link to the Harvard Pack with Cases**
-
-<https://hbsp.harvard.edu/import/1456741>
-
-**Link to Class Videos**
-
-Occasionally, I may post videos on class material. Lectures, however, will not be recorded. All class videos can be found here:
-
-<https://www.youtube.com/playlist?list=PLnRO-Bb2kD78dBaVFGNwp24zNFI1576RT>
 
 ---
 
