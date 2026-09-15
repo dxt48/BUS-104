@@ -26,7 +26,13 @@ Lecture materials are organized into **separate folders**, one per lecture.
 
 **Link to the Harvard Pack with Cases**
 
-<https://hbsp.harvard.edu/import/1456740>
+<https://hbsp.harvard.edu/import/1456741>
+
+**Link to Class Videos**
+
+Occasionally, I may post videos on class material. Lectures, however, will not be recorded. All class videos can be found here:
+
+<https://www.youtube.com/playlist?list=PLnRO-Bb2kD78dBaVFGNwp24zNFI1576RT>
 
 ---
 
