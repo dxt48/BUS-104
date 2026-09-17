@@ -51,6 +51,17 @@ __pycache__/
 *.jpeg
 *.jpg
 # ==============================================================================
+# Google Workspace / Drive Documents (Sheets, Docs, Slides)
+# ==============================================================================
+*.gsheet
+*.gdoc
+*.gslides
+*.gdraw
+*.gform
+*.gtable
+*.gshortcut
+
+# ==============================================================================
 # Operating System & Editor Artifacts
 # ==============================================================================
 .DS_Store
@@ -66,11 +77,15 @@ ehthumbs.db
 .idea/
 
 # ==============================================================================
-# Explicitly Tracked / Synced Documents (PDFs, Excel, Word, Markdown)
+# Explicitly Tracked / Synced Documents (PDFs, Excel, Word, PowerPoint, Markdown)
 # ==============================================================================
 !*.pdf
 !*.xls
 !*.xlsx
 !*.doc
 !*.docx
+!*.ppt
+!*.pptx
+!*.pptm
 !*.md
+
