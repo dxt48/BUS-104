@@ -8,6 +8,8 @@ This public GitHub repository is the official home for all lecture materials. Ev
 
 <https://hbsp.harvard.edu/import/1456741>
 
+**When purchasing the course pack, you must use exactly the same email as you use to register on Canvas. If the email is different, or if your name under which you purchase the course pack is different, you will not receive credit for your case work.**
+
 **YouTube Link**
 
 Occasionally, I may post videos on class material. Lectures, however, will not be recorded. All class videos can be found here:
