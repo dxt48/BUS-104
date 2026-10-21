@@ -1347,25 +1347,38 @@ Find the shortest path from A to C.
   \end{itemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{Introduction to Sensitivity Analysis}
-Sensitivity analysis examines how changes in the LP parameters (coefficients in objective, RHS of constraints, etc.) affect the optimal solution.
+\begin{frame}{Introduction to Sensitivity Analysis}
+Sensitivity analysis examines how changes in LP parameters (objective coefficients, constraint RHS) affect the optimal solution.
 
-\begin{block}{Why important?}
-\begin{itemize}
-\item Helps understand the robustness of the solution.
-\item Provides managerial insights (e.g., value of resources).
-\item Identifies critical parameters.
+\vspace{0.2em}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{Why Important?}
+\small
+\begin{itemize}\setlength{\itemsep}{0.2em}
+  \item Tests robustness of the optimal solution
+  \item Quantifies marginal value of resources
+  \item Identifies critical bottlenecks
 \end{itemize}
 \end{block}
+\end{column}
 
-\begin{block}{Key concepts:}
-\begin{itemize}
-\item Shadow prices (for constraints)
-\item Reduced costs (for variables)
-\item Ranges of validity
+\begin{column}{0.48\textwidth}
+\begin{block}{Key Concepts}
+\small
+\begin{itemize}\setlength{\itemsep}{0.2em}
+  \item \textbf{Shadow prices / Dual variables} (constraints)
+  \item \textbf{Reduced costs} (decision variables)
+  \item \textbf{Ranges of validity}
 \end{itemize}
 \end{block}
+\end{column}
+\end{columns}
+
+\vspace{0.3em}
+\begin{exampleblock}{Solver Terminology: Shadow Prices = Dual Variables}
+\small In Python's \texttt{PuLP} solver output, shadow prices are called \textbf{dual variables} (accessed via \texttt{c.pi}), whereas Excel Solver calls them \textbf{shadow prices}.
+\end{exampleblock}
 \end{frame}
 
 
@@ -1446,7 +1459,7 @@ print(f"Standard Bags  = {x_s.varValue:,.2f}")
 print(f"Deluxe Bags    = {x_d.varValue:,.2f}")
 print(f"Maximum Profit = ${pl.value(prob.objective):,.2f}")
 
-# Shadow Prices and Slacks
+# Shadow Prices (called Dual Variables in PuLP) and Slacks
 print("\nSensitivity Analysis -- Constraints:")
 for c in prob.constraints():
     shadow_price = abs(c.pi) if c.pi is not None else 0.0
@@ -1458,6 +1471,41 @@ print("\nSensitivity Analysis -- Decision Variables:")
 for v in prob.variables():
     print(f"  {v.name:<15}: Value = {v.varValue:,.2f}, Reduced Cost = ${v.dj:.4f}")
 \end{lstlisting}
+\end{frame}
+
+% ==============================================================================
+% SLIDE: Obtaining Shadow Prices in Excel Solver
+% ==============================================================================
+\begin{frame}{Obtaining Shadow Prices in Excel Solver}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{Step-by-Step in Excel Solver}
+\footnotesize
+\begin{enumerate}\setlength{\itemsep}{0.1em}
+  \item \textbf{Set Up Model:} Enter objective, variables, and constraints in \textbf{Data $\rightarrow$ Solver}.
+  \item \textbf{Choose Method:} Select \textbf{Simplex LP} (required for sensitivity output).
+  \item \textbf{Select Report:} Click \textbf{Solve}, then highlight \textbf{Sensitivity} under \textbf{Reports}.
+  \item \textbf{Generate Tab:} Click \textbf{OK} to create the \textbf{Sensitivity Report} tab.
+\end{enumerate}
+\end{block}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+\begin{block}{Reading the Sensitivity Report}
+\footnotesize
+\begin{itemize}\setlength{\itemsep}{0.2em}
+  \item \textbf{Variable Cells Table (Top):} Reports \textbf{Final Value} ($x_j^*$), \textbf{Reduced Cost} ($d_j$), and allowable objective ranges.
+  \item \textbf{Constraints Table (Bottom):} Reports \textbf{Final Value} (used hrs), \textbf{Shadow Price} ($\pi_i$), and allowable RHS ranges.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+
+\vspace{0.1em}
+\begin{exampleblock}{Excel Solver vs.\ Python \texttt{PuLP} Terminology}
+\footnotesize
+\textbf{Shadow Prices = Dual Variables:} Excel labels marginal constraint values \textbf{Shadow Price} (Constraints table), whereas Python's \texttt{PuLP} calls them \textbf{Dual Variables} (\texttt{c.pi}). Both tools use \textbf{Reduced Cost} (\texttt{v.dj}).
+\end{exampleblock}
 \end{frame}
 
 
@@ -1501,22 +1549,25 @@ No need to read the code. Just run it to get this:
 % SLIDE 1: What Is an Extra Hour Worth? (Shadow Price)
 % ==============================================================================
 \begin{frame}{What Is an Extra Hour Worth? (Shadow Price)}
-\begin{block}{Definition: Shadow Price (Dual Value)}
+\begin{block}{Definition: Shadow Price (also called Dual Variable)}
 \small
+\setlength{\abovedisplayskip}{4pt}\setlength{\belowdisplayskip}{4pt}
 The marginal change in optimal profit per 1-unit increase in resource capacity (RHS):
 \[
-\text{Shadow Price } (\pi_i) = \frac{\Delta \text{Optimal Profit}}{\Delta \text{Resource Capacity } (b_i)}
+\text{Shadow Price / Dual Variable } (\pi_i) = \frac{\Delta \text{Optimal Profit}}{\Delta \text{Resource Capacity } (b_i)}
 \]
+
+\footnotesize \textbf{Terminology:} Excel calls $\pi_i$ a \textbf{shadow price}; Python's \texttt{PuLP} calls it a \textbf{dual variable} (\texttt{c.pi}).\par
 \end{block}
 
-\vspace{-0.2em}
+\vspace{0.1em}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
 \begin{block}{Managerial Willingness to Pay}
 \small
-\begin{itemize}\setlength{\itemsep}{0.2em}
-  \item \textbf{Upper Limit:} Maximum price/premium worth paying for extra bottleneck capacity.
-  \item \textbf{Overtime Limit:} Paying up to \textbf{\$4.38/hr} in overtime for Cutting is profitable.
+\begin{itemize}\setlength{\itemsep}{0.15em}
+  \item \textbf{Upper Limit:} Max premium worth paying for extra bottleneck capacity.
+  \item \textbf{Overtime Limit:} Paying up to \textbf{\$4.38/hr} in Cutting overtime is profitable.
 \end{itemize}
 \end{block}
 \end{column}
@@ -1524,9 +1575,9 @@ The marginal change in optimal profit per 1-unit increase in resource capacity (
 \begin{column}{0.48\textwidth}
 \begin{alertblock}{The Golden Rule of Slack}
 \small
-\begin{itemize}\setlength{\itemsep}{0.2em}
+\begin{itemize}\setlength{\itemsep}{0.15em}
   \item If $\mathbf{\text{Slack} > 0}$, then $\mathbf{\text{Shadow Price} = \$0.00}$.
-  \item \textbf{Intuition:} Why pay for additional hours when surplus capacity is already idle?
+  \item \textbf{Intuition:} Why pay for extra hours when surplus capacity is already idle?
 \end{itemize}
 \end{alertblock}
 \end{column}
@@ -1629,15 +1680,16 @@ Inspection & 0.15 & $\times\ \$0.000$ & $\$0.00$ \\
 \begin{frame}{The Strategic Payoff: Evaluating the Net Margin}
 \begin{block}{Net Economic Margin: $\text{Unit Profit} - \$9.05\text{ Hurdle Rate}$}
 \small
-Compare the proposed selling profit against the $\$9.05$ opportunity cost of diverted bottleneck capacity:
+Compare proposed unit profit against the $\$9.05$ opportunity cost of diverted bottleneck capacity:
 \end{block}
 
-\vspace{-0.2em}
+\vspace{-0.1em}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
 \begin{exampleblock}{Scenario A: Profit = \$10.00 / bag}
 \small
-\[ \text{Margin} = \$10.00 - \$9.05 = \mathbf{+\$0.95 > 0} \]
+{\footnotesize\setlength{\abovedisplayskip}{4pt}\setlength{\belowdisplayskip}{4pt}
+\[ \text{Margin} = \$10.00 - \$9.05 = \mathbf{+\$0.95 > 0} \]}
 \textbf{Decision: PRODUCE!}
 \begin{itemize}\setlength{\itemsep}{0.1em}
   \item Clears resource hurdle rate.
@@ -1649,7 +1701,8 @@ Compare the proposed selling profit against the $\$9.05$ opportunity cost of div
 \begin{column}{0.48\textwidth}
 \begin{alertblock}{Scenario B: Profit = \$8.50 / bag}
 \small
-\[ \text{Margin} = \$8.50 - \$9.05 = \mathbf{-\$0.55 < 0} \]
+{\footnotesize\setlength{\abovedisplayskip}{4pt}\setlength{\belowdisplayskip}{4pt}
+\[ \text{Margin} = \$8.50 - \$9.05 = \mathbf{-\$0.55 < 0} \]}
 \textbf{Decision: REJECT!}
 \begin{itemize}\setlength{\itemsep}{0.1em}
   \item Fails resource hurdle rate.
@@ -1669,20 +1722,21 @@ Compare the proposed selling profit against the $\$9.05$ opportunity cost of div
 \begin{frame}{Formalizing Reduced Cost ($d_j$) at Optimality}
 \begin{block}{Definition: Reduced Cost as Net Resource Margin}
 \small
-The \textbf{Reduced Cost} ($d_j$) is the net margin we just calculated---unit profit minus the shadow value of scarce resources consumed:
+\setlength{\abovedisplayskip}{3pt}\setlength{\belowdisplayskip}{3pt}
+Net margin per unit: unit profit minus the shadow value of scarce resources consumed:
 \[
-\text{Reduced Cost } (d_j) = \underbrace{\text{Unit Profit } (c_j)}_{\text{Revenue Earned}} - \underbrace{\sum_{i=1}^m a_{ij} \pi_i}_{\text{Opportunity Cost of Scarce Resources}}
+\text{Reduced Cost } (d_j) = \underbrace{\text{Unit Profit } (c_j)}_{\text{Revenue Earned}} - \underbrace{\sum_{i=1}^m a_{ij} \pi_i}_{\text{Opportunity Cost of Resources}}
 \]
 \end{block}
 
-\vspace{-0.2em}
+\vspace{-0.1em}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
 \begin{exampleblock}{Produced Items ($x_j^* > 0 \implies d_j = \$0.00$)}
 \small
-\begin{itemize}\setlength{\itemsep}{0.2em}
-  \item At optimality, \textbf{Reduced Cost = \$0.00} (Standard \& Deluxe bags).
-  \item \textbf{Why?} If $d_j > 0$, we wouldn't be at the optimum yet (we'd make more!); thus unit profit exactly equals opportunity cost ($c_j = \sum_i a_{ij}\pi_i$).
+\begin{itemize}\setlength{\itemsep}{0.15em}
+  \item \textbf{Reduced Cost = \$0.00} (Standard \& Deluxe).
+  \item \textbf{Why?} At optimality, unit profit equals opportunity cost ($c_j = \sum_i a_{ij}\pi_i$).
 \end{itemize}
 \end{exampleblock}
 \end{column}
@@ -1690,9 +1744,9 @@ The \textbf{Reduced Cost} ($d_j$) is the net margin we just calculated---unit pr
 \begin{column}{0.48\textwidth}
 \begin{alertblock}{Unproduced Items ($x_j^* = 0 \implies d_j \le \$0.00$)}
 \small
-\begin{itemize}\setlength{\itemsep}{0.2em}
-  \item At optimality, \textbf{Reduced Cost $\le \$0.00$} (like Scenario B: $-\$0.55$).
-  \item \textbf{Why?} Consumes more value in bottleneck capacity than it returns in profit; $|d_j|$ is the exact profit shortfall per unit.
+\begin{itemize}\setlength{\itemsep}{0.15em}
+  \item \textbf{Reduced Cost $\le \$0.00$} (Scenario B: $-\$0.55$).
+  \item \textbf{Why?} Resource cost exceeds profit; $|d_j|$ is the profit shortfall per unit.
 \end{itemize}
 \end{alertblock}
 \end{column}
@@ -1725,20 +1779,15 @@ x_s,\; x_d,\; \alert{\mathbf{x_p}} &\ge 0
 % ==============================================================================
 % SLIDE 7: Re-Solved LP Results vs. Shadow Price Shortcuts
 % ==============================================================================
-\begin{frame}{Re-Solving the Expanded LP: Exact Confirmation}{Shadow Price Hurdle Rule Matches Full Re-Optimization}
+\begin{frame}{Re-Solving the Expanded LP: Exact Confirmation}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
 \begin{exampleblock}{Scenario A: $c_p = \$10.00$ ($d_p = +\$0.95$)}
 \small
-\textbf{New Optimal LP Solution:}
-\begin{itemize}\setlength{\itemsep}{0.15em}
-  \item $x_s^* = 260$, $x_d^* = 0$, $\alert{\mathbf{x_p^* = 560}}$
-  \item \textbf{New Profit:} $\mathbf{Z^* = \$8,200.00}$ (up $+\$532$ from $\$7,668$)
-  \item \textbf{Reduced Costs at New Optimum:}
-    \begin{itemize}\scriptsize
-      \item $d_s = \$0.00$, $d_p = \$0.00$ (both produced)
-      \item $d_d = -\$2.11$ (Deluxe now priced out!)
-    \end{itemize}
+\begin{itemize}\setlength{\itemsep}{0.2em}
+  \item \textbf{Optimal Mix:} $x_s^* = 260$, $x_d^* = 0$, $\alert{\mathbf{x_p^* = 560}}$
+  \item \textbf{New Profit:} $\mathbf{Z^* = \$8,200.00}$ ($+\$532$ gain)
+  \item \textbf{New Reduced Costs:} $d_s = \$0$, $d_p = \$0$ (produced); $d_d = -\$2.11$ (Deluxe priced out!)
 \end{itemize}
 \end{exampleblock}
 \end{column}
@@ -1746,21 +1795,16 @@ x_s,\; x_d,\; \alert{\mathbf{x_p}} &\ge 0
 \begin{column}{0.48\textwidth}
 \begin{alertblock}{Scenario B: $c_p = \$8.50$ ($d_p = -\$0.55$)}
 \small
-\textbf{New Optimal LP Solution:}
-\begin{itemize}\setlength{\itemsep}{0.15em}
-  \item $x_s^* = 540$, $x_d^* = 252$, $\alert{\mathbf{x_p^* = 0}}$
+\begin{itemize}\setlength{\itemsep}{0.2em}
+  \item \textbf{Optimal Mix:} $x_s^* = 540$, $x_d^* = 252$, $\alert{\mathbf{x_p^* = 0}}$
   \item \textbf{New Profit:} $\mathbf{Z^* = \$7,668.00}$ (unchanged)
-  \item \textbf{Reduced Costs at Optimum:}
-    \begin{itemize}\scriptsize
-      \item $d_s = \$0.00$, $d_d = \$0.00$ (both produced)
-      \item $\alert{\mathbf{d_p = -\$0.55}}$ (matches our hand calculation!)
-    \end{itemize}
+  \item \textbf{Reduced Costs:} $d_s = \$0$, $d_d = \$0$ (produced); $\alert{\mathbf{d_p = -\$0.55}}$ (exact match!)
 \end{itemize}
 \end{alertblock}
 \end{column}
 \end{columns}
 
-\vspace{0.3em}
+\vspace{0.2em}
 \begin{block}{Why Both Perspectives Matter}
 \footnotesize
 \textbf{Shadow pricing} tells us \textit{instantly} whether $x_p^* > 0$ ($c_p > \$9.05$); \textbf{re-solving the LP} is needed only when $c_p > \$9.05$ to find the exact new production quantities $(260, 0, 560)$.
