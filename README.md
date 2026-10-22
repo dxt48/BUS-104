@@ -16,6 +16,13 @@ Occasionally, I may post videos on class material. Lectures, however, will not b
 
 <https://www.youtube.com/playlist?list=PLnRO-Bb2kD78dBaVFGNwp24zNFI1576RT>
 
+---
+
+### AI Study Guide & Course Tutor (NotebookLM)
+
+I have created an interactive **Google NotebookLM AI Study Guide** loaded with all the course teaching materials. You can use this as your personal AI tutor when preparing for exams or working on homework assignments:
+
+<https://notebook.google.com/notebook/21540e36-100c-4abc-a851-af3bf66ef8e9>
 
 ---
 
