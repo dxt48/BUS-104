@@ -73,19 +73,6 @@
   \maketitle
 \end{frame}
 
-\begin{frame}{Course Information}
-\begin{itemize}
-\item \textbf{Instructor:} Danko Turcic, Associate Professor of Operations Management
-\item \textbf{Quarter:} Fall 2025
-\item \textbf{Office:} Anderson-1 421
-\item \textbf{Meeting Time:} MW 11:00 AM - 12:20 PM
-\item \textbf{Email:} danko.turcic@ucr.edu
-\item \textbf{Classroom:} SB 165
-\item \textbf{Website:} https://eLearn.ucr.edu
-\item \textbf{Office Hours:} MW 10:00 - 10:50 AM
-\end{itemize}
-\end{frame}
-
 % ----------------------------------------------------------------------
 % SLIDE 2: LP vs. ILP Definition
 % ----------------------------------------------------------------------
@@ -1343,15 +1330,15 @@ Without \texttt{x1 + x2 - 10 * y <= 0}, the solver would set \texttt{y = 0} to a
 \textbf{Context:}
 \begin{itemize}
   \item A company can order two products --- A and B --- from a single supplier.
-  \item Ordering from the supplier incurs a fixed setup (shipping) cost.
+  \item Ordering from the supplier incurs a fixed setup (shipping) cost of \$12.
   \item If an order is placed, the supplier requires a \textbf{minimum purchase quantity (MOQ)} of 6 total units.
-  \item Each product consumes limited assembly hours and materials.
-  \item The firm must decide how many units of each product to order, and whether to place an order at all.
+  \item Each product consumes limited assembly hours (16 hours available).
+  \item The firm must decide whether to place an order at all, and how many units of each product to order.
 \end{itemize}
 
 \textbf{Goal:}
 \begin{itemize}
-  \item Maximize total profit = revenue from A and B $-$ fixed ordering cost.
+  \item Maximize total net profit = profit from A and B $-$ fixed ordering cost.
 \end{itemize}
 \end{frame}
 
@@ -1370,19 +1357,16 @@ Without \texttt{x1 + x2 - 10 * y <= 0}, the solver would set \texttt{y = 0} to a
 \textbf{Parameters:}
 \begin{itemize}
   \item Profit per unit: \$7 for A, \$5 for B
-  \item Fixed ordering cost: \$12
+  \item Fixed ordering cost: \$12 (incurred only if $y=1$)
   \item Assembly time: 2 hours for A, 1 hour for B (max 16 hours)
-  \item Material usage: 1 for A, 2 for B (max 18 units)
-  \item Demand limit for B: $x_2 \le 8$
-  \item Minimum purchase quantity: at least 6 units total if an order is placed
+  \item Minimum purchase quantity (MOQ): at least 6 total units if an order is placed ($y=1$)
 \end{itemize}
 \end{frame}
 
 \begin{frame}{MILP with Minimum Purchase Quantity (MOQ)}
-\textbf{Supplier Order with MOQ:}
+\textbf{Focusing on the Switching Constraints:}
 \begin{itemize}
-  \item Two products (A and B) assembled from the same supplier.
-  \item If we place an order (\(y=1\)), we pay a fixed shipping/setup cost of \$12 and must buy at least \(\mathbf{6}\) total units.
+  \item Apart from the single resource limit ($2x_1 + x_2 \le 16$), the core integer programming innovation is the pair of \textbf{switching constraints} controlled by $y \in \{0,1\}$:
 \end{itemize}
 
 \[
@@ -1390,14 +1374,20 @@ Without \texttt{x1 + x2 - 10 * y <= 0}, the solver would set \texttt{y = 0} to a
 \]
 \[
 \text{s.t. }\begin{cases}
-\text{Assembly hours:} & 2x_1 + x_2 \le 16 \\[2pt]
-\text{Material limit:} & x_1 + 2x_2 \le 18 \\[2pt]
-\text{Demand cap for B:} & x_2 \le 8 \\[4pt]
-\textbf{MOQ if ordering:} & \mathbf{x_1 + x_2 \;\ge\; 6\,y} \\[2pt]
-\textbf{No purchase unless ordering:} & \mathbf{x_1 \le 18\,y,\;\; x_2 \le 18\,y} \\[4pt]
-x_1, x_2 \ge 0,\quad \mathbf{y \in \{0,1\}}
+\text{Assembly hours:} & 2x_1 + x_2 \le 16 \\[4pt]
+\textbf{MOQ switch (lower bound):} & \mathbf{x_1 + x_2 \;\ge\; 6\,y} \\[2pt]
+\textbf{Big-$M$ switch (upper bound):} & \mathbf{x_1 + x_2 \;\le\; 16\,y} \\[4pt]
+x_1, x_2 \in \mathbb{Z}_{\ge 0},\quad \mathbf{y \in \{0,1\}}
 \end{cases}
 \]
+
+\centering
+\alert{\textbf{Two-Sided Switching Rule:}\quad $\mathbf{6y \;\le\; x_1 + x_2 \;\le\; 16y}$}
+\begin{itemize}
+  \footnotesize
+  \item If $y=0$: $0 \le x_1 + x_2 \le 0 \implies x_1 = x_2 = 0$ (no purchase allowed).
+  \item If $y=1$: $6 \le x_1 + x_2 \le 16$ (MOQ enforced; $M=16$ is the natural max from $2x_1 + x_2 \le 16$).
+\end{itemize}
 \end{frame}
 
 % ----------------------------------------------------------------------
@@ -1409,16 +1399,17 @@ x_1, x_2 \ge 0,\quad \mathbf{y \in \{0,1\}}
   \footnotesize
   \begin{block}{Case 1: Do Not Order ($y=0$)}
     \begin{itemize}
-      \item Upper bounds force $x_1 = 0, \; x_2 = 0 \implies Z = \mathbf{\$0}$.
+      \item Switching rule $0 \le x_1 + x_2 \le 0$ forces $x_1 = 0, \; x_2 = 0 \implies Z = \mathbf{\$0}$.
     \end{itemize}
   \end{block}
   \begin{block}{Case 2: Place Order ($y=1$)}
     \begin{itemize}
-      \item Must satisfy $x_1 + x_2 \ge 6$ plus resource limits.
-      \item \textbf{Continuous $x_1, x_2 \ge 0$:} Intersection of Assembly ($2x_1+x_2=16$) and Material ($x_1+2x_2=18$):\\
-      $x_1^* = \tfrac{14}{3} \approx 4.67, \;\; x_2^* = \tfrac{20}{3} \approx 6.67, \;\; Z^* = \mathbf{\$54.00}$.
-      \item \textbf{Integer $x_1, x_2 \in \mathbb{Z}_{\ge 0}$:}\\
-      $x_1^* = 5, \;\; x_2^* = 6 \implies Z^* = 7(5)+5(6)-12 = \mathbf{\$53.00}$.
+      \item Switching rule becomes $6 \le x_1 + x_2 \le 16$ alongside $2x_1 + x_2 \le 16$.
+      \item Profit per assembly hour: Product B earns $\$5/\text{hr}$ vs.\ Product A at $\$7/2 = \$3.50/\text{hr}$.
+      \item \textbf{Optimal Solution:} $x_1^* = 0, \; x_2^* = 16, \; y^* = 1$
+      \[
+        Z^* = 7(0) + 5(16) - 12(1) = \mathbf{\$68.00}.
+      \]
     \end{itemize}
   \end{block}
 \end{column}
@@ -1429,32 +1420,30 @@ x_1, x_2 \ge 0,\quad \mathbf{y \in \{0,1\}}
       width=5.4cm,
       height=4.0cm,
       axis lines=left,
-      xmin=0, xmax=9.5, ymin=0, ymax=9.5,
+      xmin=0, xmax=9.2, ymin=0, ymax=17.8,
       xlabel={$x_1$ (Product A)}, ylabel={$x_2$ (Product B)},
-      xtick={0,2,4,6,8}, ytick={0,2,4,6,8},
+      xtick={0,2,4,6,8}, ytick={0,4,8,12,16},
       tick label style={font=\scriptsize},
       label style={font=\footnotesize},
       grid=major, clip=false
     ]
       % Feasible region for y=1:
-      % x1 + x2 >= 6, 2x1 + x2 <= 16, x1 + 2x2 <= 18, x2 <= 8
-      % Vertices: (6,0), (8,0), (14/3, 20/3), (2,8), (0,8), (0,6)
-      \addplot[feasible area] coordinates {(6,0) (8,0) (4.667,6.667) (2,8) (0,8) (0,6)} \closedcycle;
+      % x1 + x2 >= 6, 2x1 + x2 <= 16
+      % Vertices: (6,0), (8,0), (0,16), (0,6)
+      \addplot[feasible area] coordinates {(6,0) (8,0) (0,16) (0,6)} \closedcycle;
 
-      \addplot[constraint line, domain=4.2:8] {16 - 2*x};
-      \addplot[constraint line, domain=0:7.5] {9 - 0.5*x};
+      \addplot[constraint line, domain=0:8] {16 - 2*x};
+      \node[font=\scriptsize, blue!80!black, fill=white, inner sep=1pt] at (axis cs:5.2, 8.2) {$2x_1 + x_2 \le 16$};
+
       \addplot[thick, red!75!black, dashed, domain=0:6] {6 - x};
-      \node[font=\scriptsize, red!75!black, fill=white, inner sep=1pt] at (axis cs:2.3, 4.3) {MOQ $\ge 6$};
+      \node[font=\scriptsize, red!75!black, fill=white, inner sep=1pt] at (axis cs:2.2, 2.2) {MOQ $\ge 6$};
 
       % Origin (y=0)
       \node[fixed cost point] at (axis cs:0,0) {};
-      \node[font=\scriptsize, fill=white, inner sep=1pt, anchor=south west] at (axis cs:0.15,0.2) {$y=0:(0,0)$};
+      \node[font=\scriptsize, fill=white, inner sep=1pt, anchor=south west] at (axis cs:0.2,0.3) {$y=0:(0,0)$};
 
-      % Continuous MILP Optimum (4.67, 6.67)
-      \node[lp optimal, label={[font=\scriptsize, fill=white, inner sep=1pt, anchor=south west]above right:LP $(4.67, 6.67): \$54$}] at (axis cs:4.667,6.667) {};
-
-      % Integer Optimum (5, 6)
-      \node[ilp optimal, label={[font=\scriptsize, fill=white, inner sep=1pt, anchor=west]right=3pt:Int $(5, 6): \$53$}] at (axis cs:5,6) {};
+      % Optimal Solution (0, 16)
+      \node[ilp optimal, label={[font=\scriptsize, fill=white, inner sep=1pt, anchor=west]right=3pt:Opt $(0, 16): Z^*=\$68$}] at (axis cs:0,16) {};
     \end{axis}
   \end{tikzpicture}
 \end{column}
@@ -1464,7 +1453,7 @@ x_1, x_2 \ge 0,\quad \mathbf{y \in \{0,1\}}
 % ----------------------------------------------------------------------
 % NEW SLIDE: PuLP 4.0 Code for MOQ Model
 % ----------------------------------------------------------------------
-\begin{frame}[fragile]{Solving the MOQ Model in Python (PuLP 4.0)}{Example 5: Disjunctive Feasible Region with Minimum Order Quantity}
+\begin{frame}[fragile]{Solving the MOQ Model in Python (PuLP 4.0)}{Example 5: Disjunctive Feasible Region with Switching Constraints}
 \begin{columns}[T]
 \begin{column}{0.58\textwidth}
 \begin{lstlisting}
@@ -1479,12 +1468,12 @@ y  = prob.add_variable("y", cat=pulp.LpBinary)
 
 prob += 7 * x1 + 5 * x2 - 12 * y, "Net_Profit"
 
+# Single resource constraint
 prob += 2 * x1 + x2 <= 16, "Assembly_Hours"
-prob += x1 + 2 * x2 <= 18, "Material_Limit"
-prob += x2 <= 8, "Demand_Cap_B"
-prob += x1 + x2 - 6 * y >= 0, "MOQ_Constraint"
-prob += x1 - 18 * y <= 0, "Link_x1"
-prob += x2 - 18 * y <= 0, "Link_x2"
+
+# Two-sided switching constraints: 6*y <= x1 + x2 <= 16*y
+prob += x1 + x2 - 6 * y >= 0, "MOQ_Lower_Switch"
+prob += x1 + x2 - 16 * y <= 0, "Big_M_Upper_Switch"
 
 res = prob.solve()
 z_opt = pulp.value(prob.objective)
@@ -1496,13 +1485,516 @@ print(f"y*={y.varValue:.0f}, x1*={x1.varValue:.0f}, x2*={x2.varValue:.0f}")
 \begin{block}{Console Output}
 \footnotesize
 \texttt{Status: Optimal}\\
-\texttt{Profit Z* = \$53.00}\\
+\texttt{Profit Z* = \$68.00}\\
 \texttt{Order y* = 1}\\
-\texttt{x1* = 5, x2* = 6}
+\texttt{x1* = 0, x2* = 16}
 \end{block}
 \begin{alertblock}{Modeling Insight}
 \scriptsize
-Combining $\mathbf{x_1 + x_2 \ge 6y}$ with $\mathbf{x_i \le 18y}$ creates a \textit{semi-continuous} region: total quantity is either exactly $0$ ($y=0$) or at least $6$ ($y=1$).
+Combining $\mathbf{x_1 + x_2 \ge 6y}$ with $\mathbf{x_1 + x_2 \le 16y}$ creates a \textit{semi-continuous} switch: total quantity is either \textbf{0} ($y=0$) or \textbf{between 6 and 16} ($y=1$).
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+% ======================================================================
+% SECTION: Fixed-Charge Transshipment Problem
+% ======================================================================
+\section{Fixed-Charge Transshipment Problem}
+\begin{frame}\sectionpage\end{frame}
+
+% ----------------------------------------------------------------------
+% SLIDE 42: Problem Setup & Network Diagram
+% ----------------------------------------------------------------------
+\begin{frame}{Fixed-Charge Transshipment Problem}{Warehouse Selection and Network Flow}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.51\textwidth}
+  \footnotesize
+  \textbf{Logistics Network Setup:}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item \textbf{3 Candidate Warehouses ($W_1, W_2, W_3$):} Each holds $S_i = 50$ units. Shipping any positive volume from $W_i$ incurs a \textbf{fixed setup/dispatch fee $F_i$}.
+    \item \textbf{Central Transshipment Hub ($T$):} Consolidates all inbound shipments ($\text{Flow In} = \text{Flow Out}$) and forwards them to Customer $D$ at $\$3/\text{unit}$.
+    \item \textbf{Customer Sink ($D$):} Requires exactly $80$ units.
+  \end{itemize}
+  \vspace{2pt}
+  \centering
+  {\scriptsize\setlength{\tabcolsep}{3.5pt}
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    \textbf{Warehouse} & \textbf{Supply ($S_i$)} & \textbf{Fixed Fee ($F_i$)} & \textbf{Cost ($c_{iT}$)} \\
+    \midrule
+    $W_1$ (North)   & $50$ units & $\$120$ & $\$2/\text{unit}$ \\
+    $W_2$ (Central) & $50$ units & $\$70$  & $\$4/\text{unit}$ \\
+    $W_3$ (South)   & $50$ units & $\$50$  & $\$5/\text{unit}$ \\
+    \bottomrule
+  \end{tabular}}
+\end{column}
+\begin{column}{0.46\textwidth}
+  \centering
+  \vspace{4pt}
+  \begin{tikzpicture}[>=Stealth, every node/.style={font=\scriptsize}]
+    % Warehouse nodes
+    \node[circle, draw=blue!75!black, thick, fill=blue!10, minimum size=0.72cm] (W1) at (0, 1.35) {\textbf{$W_1$}};
+    \node[circle, draw=blue!75!black, thick, fill=blue!10, minimum size=0.72cm] (W2) at (0, 0)    {\textbf{$W_2$}};
+    \node[circle, draw=blue!75!black, thick, fill=blue!10, minimum size=0.72cm] (W3) at (0,-1.35) {\textbf{$W_3$}};
+
+    % Supply & Fixed cost labels on left
+    \node[anchor=east, align=right, font=\tiny] at (-0.42, 1.35) {$S_1=50$\\$F_1=\$120$};
+    \node[anchor=east, align=right, font=\tiny] at (-0.42, 0)    {$S_2=50$\\$F_2=\$70$};
+    \node[anchor=east, align=right, font=\tiny] at (-0.42,-1.35) {$S_3=50$\\$F_3=\$50$};
+
+    % Transshipment Hub
+    \node[circle, draw=orange!85!black, thick, fill=orange!12, minimum size=0.76cm] (T) at (1.75, 0) {\textbf{$T$}};
+    \node[anchor=north, align=center, font=\tiny, orange!80!black] at (1.75, -0.44) {Hub:\\In $=$ Out};
+
+    % Sink Node
+    \node[circle, draw=red!75!black, thick, fill=red!10, minimum size=0.74cm] (D) at (3.20, 0) {\textbf{$D$}};
+    \node[anchor=north, align=center, font=\tiny, red!75!black] at (3.20, -0.42) {Demand\\$= 80$};
+
+    % Directed Arcs
+    \draw[->, thick, blue!75!black] (W1) -- (T) node[midway, above, sloped, font=\tiny, fill=white, inner sep=1pt] {$\$2$ ($x_{1T}$)};
+    \draw[->, thick, blue!75!black] (W2) -- (T) node[midway, above, font=\tiny, fill=white, inner sep=1pt] {$\$4$ ($x_{2T}$)};
+    \draw[->, thick, blue!75!black] (W3) -- (T) node[midway, below, sloped, font=\tiny, fill=white, inner sep=1pt] {$\$5$ ($x_{3T}$)};
+    \draw[->, very thick, orange!85!black] (T) -- (D) node[midway, above, font=\tiny, fill=white, inner sep=1pt] {$\$3$ ($x_{TD}$)};
+  \end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ----------------------------------------------------------------------
+% SLIDE 43: Decision Variables and Warehouse Activation
+% ----------------------------------------------------------------------
+\begin{frame}{Decision Variables and Warehouse Activation}{Linking Continuous Network Flows to Binary Setup Choices}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+  \begin{block}{1. Continuous Flow Variables ($x_{ij} \ge 0$)}
+    \scriptsize
+    \begin{itemize}\setlength{\itemsep}{2pt}
+      \item $x_{1T}, x_{2T}, x_{3T} \ge 0$: Units shipped from Warehouse $W_1, W_2, W_3$ to Hub $T$.
+      \item $x_{TD} \ge 0$: Consolidated units shipped from Hub $T$ to Customer $D$.
+    \end{itemize}
+  \end{block}
+  \begin{block}{2. Binary Activation Variables ($y_i \in \{0,1\}$)}
+    \scriptsize
+    \begin{itemize}\setlength{\itemsep}{2pt}
+      \item $y_i = 1$ if Warehouse $W_i$ is opened/used ($i=1,2,3$), and $y_i = 0$ otherwise.
+    \end{itemize}
+  \end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+  \begin{alertblock}{Big-$M$ Capacity \& Activation Rule}
+    \scriptsize
+    Each warehouse's inventory ($S_i = 50$) serves as the exact Big-$M$ upper bound:
+    \[
+      \mathbf{x_{iT} \le 50 y_i \iff x_{iT} - 50 y_i \le 0} \quad (i=1,2,3)
+    \]
+    \begin{itemize}\setlength{\itemsep}{1pt}
+      \item $y_i = 0 \implies x_{iT} = 0$ (no flow without paying $F_i$).
+      \item $y_i = 1 \implies x_{iT} \le 50$ (full capacity unlocked).
+    \end{itemize}
+  \end{alertblock}
+  \begin{exampleblock}{Transshipment Hub Conservation ($T$)}
+    \scriptsize
+    Hub $T$ holds no inventory ($\text{Flow In} = \text{Flow Out}$):
+    \[
+      \mathbf{x_{1T} + x_{2T} + x_{3T} - x_{TD} = 0}
+    \]
+  \end{exampleblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ----------------------------------------------------------------------
+% SLIDE 44: Complete MILP Formulation
+% ----------------------------------------------------------------------
+\begin{frame}{MILP Formulation: Fixed-Charge Transshipment}{Combining Fixed Setup Fees, Big-$M$ Capacities, and Flow Balance}
+  \footnotesize
+  \[
+    \min \quad Z = \underbrace{120y_1 + 70y_2 + 50y_3}_{\text{Fixed Warehouse Setup Fees}} + \underbrace{2x_{1T} + 4x_{2T} + 5x_{3T} + 3x_{TD}}_{\text{Variable Transshipment Costs}}
+  \]
+  \textbf{Subject to:}
+  \begin{align*}
+    x_{1T} - 50y_1 &\le 0 && \text{(Warehouse 1 Capacity \& Activation)} \\
+    x_{2T} - 50y_2 &\le 0 && \text{(Warehouse 2 Capacity \& Activation)} \\
+    x_{3T} - 50y_3 &\le 0 && \text{(Warehouse 3 Capacity \& Activation)} \\[3pt]
+    x_{1T} + x_{2T} + x_{3T} - x_{TD} &= 0 && \text{(Flow Conservation at Hub } T\text{)} \\
+    x_{TD} &= 80 && \text{(Demand Requirement at Sink } D\text{)} \\[3pt]
+    x_{1T}, x_{2T}, x_{3T}, x_{TD} &\ge 0, \quad y_1, y_2, y_3 \in \{0, 1\}
+  \end{align*}
+\end{frame}
+
+% ----------------------------------------------------------------------
+% SLIDE 45: Optimal Solution & Cost Trade-Off
+% ----------------------------------------------------------------------
+\begin{frame}{Optimal Solution: Fixed vs.\ Variable Cost Trade-Off}{Why the Cheapest Setup Fee Does Not Win}
+\vspace{-0.3em}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.51\textwidth}
+  \scriptsize
+  Since each warehouse holds $50$ units and demand is $80$ units, \textbf{at least two warehouses} must open:
+  \begin{block}{1. Cheapest Setup Pair $\{W_2, W_3\}$ ($y_2=1, y_3=1$)}
+    $x_{2T}=50, \; x_{3T}=30, \; x_{TD}=80$\\
+    Fixed $\$120 + \text{Var } \$590 \implies \text{Total Cost} = \mathbf{\$710}$.
+  \end{block}
+  \vspace{-0.3em}
+  \begin{block}{2. Mixed Pair $\{W_1, W_3\}$ ($y_1=1, y_3=1$)}
+    $x_{1T}=50, \; x_{3T}=30, \; x_{TD}=80$\\
+    Fixed $\$170 + \text{Var } \$490 \implies \text{Total Cost} = \mathbf{\$660}$.
+  \end{block}
+  \vspace{-0.3em}
+  \begin{exampleblock}{3. Optimal MILP Pair $\{W_1, W_2\}$ ($y_1^*=1, y_2^*=1, y_3^*=0$)}
+    $x_{1T}^*=50, \; x_{2T}^*=30, \; x_{3T}^*=0, \; x_{TD}^*=80$\\
+    Fixed $\$190 + \text{Var } \$460 \implies \text{Optimal } \mathbf{Z^* = \$650}$.
+  \end{exampleblock}
+\end{column}
+\begin{column}{0.46\textwidth}
+  \centering
+  \begin{tikzpicture}[>=Stealth, every node/.style={font=\scriptsize}]
+    % Active W1 & W2, Inactive W3
+    \node[circle, draw=green!60!black, very thick, fill=green!12, minimum size=0.68cm] (W1) at (0, 1.05) {\textbf{$W_1$}};
+    \node[circle, draw=green!60!black, very thick, fill=green!12, minimum size=0.68cm] (W2) at (0, 0)    {\textbf{$W_2$}};
+    \node[circle, draw=gray!60, dashed, thick, fill=gray!10, text=gray!70, minimum size=0.68cm] (W3) at (0,-1.05) {\textbf{$W_3$}};
+
+    \node[anchor=east, align=right, font=\tiny, green!50!black] at (-0.38, 1.05) {\textbf{OPEN}\\$y_1^*=1$};
+    \node[anchor=east, align=right, font=\tiny, green!50!black] at (-0.38, 0)    {\textbf{OPEN}\\$y_2^*=1$};
+    \node[anchor=east, align=right, font=\tiny, gray!70]        at (-0.38,-1.05) {CLOSED\\$y_3^*=0$};
+
+    \node[circle, draw=orange!85!black, very thick, fill=orange!12, minimum size=0.74cm] (T) at (1.95, 0) {\textbf{$T$}};
+    \node[circle, draw=red!75!black, very thick, fill=red!10, minimum size=0.72cm] (D) at (3.65, 0) {\textbf{$D$}};
+    \node[anchor=north, font=\tiny, red!75!black] at (3.65, -0.40) {$\text{In} = 80$};
+
+    % Active & Inactive Arcs
+    \draw[->, very thick, green!60!black] (W1) -- (T) node[midway, above, sloped, font=\tiny, fill=white, inner sep=1pt] {$\mathbf{x_{1T}^*=50}$};
+    \draw[->, very thick, green!60!black] (W2) -- (T) node[midway, above, font=\tiny, fill=white, inner sep=1pt] {$\mathbf{x_{2T}^*=30}$};
+    \draw[->, dashed, gray!55]            (W3) -- (T) node[midway, below, sloped, font=\tiny, text=gray!70, fill=white, inner sep=1pt] {$x_{3T}^*=0$};
+    \draw[->, very thick, orange!85!black] (T) -- (D) node[midway, above, font=\tiny, fill=white, inner sep=1pt] {$\mathbf{x_{TD}^*=80}$};
+  \end{tikzpicture}
+  \vspace{-0.2em}
+  \begin{alertblock}{Economic Intuition}
+    \scriptsize
+    Opening $W_1$ costs $\$70$ more in fixed fees than $W_3$, but saves $(\$5-\$2)\times 50 = \mathbf{\$150}$ in shipping—netting $\mathbf{\$60}$ over $\{W_2, W_3\}$!
+  \end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ----------------------------------------------------------------------
+% SLIDE 46: PuLP 4.0 Implementation
+% ----------------------------------------------------------------------
+\begin{frame}[fragile]{Fixed-Charge Transshipment in Python (PuLP 4.0)}{Example 6: Network Flow Conservation with Binary Setup Variables}
+\begin{columns}[T]
+\begin{column}{0.58\textwidth}
+\begin{lstlisting}
+import pulp
+
+prob = pulp.LpProblem("Fixed_Charge_Transshipment", pulp.LpMinimize)
+x1T = prob.add_variable("x1T", lowBound=0, cat=pulp.LpContinuous)
+x2T = prob.add_variable("x2T", lowBound=0, cat=pulp.LpContinuous)
+x3T = prob.add_variable("x3T", lowBound=0, cat=pulp.LpContinuous)
+xTD = prob.add_variable("xTD", lowBound=0, cat=pulp.LpContinuous)
+y1  = prob.add_variable("y1", cat=pulp.LpBinary)
+y2  = prob.add_variable("y2", cat=pulp.LpBinary)
+y3  = prob.add_variable("y3", cat=pulp.LpBinary)
+
+prob += 120*y1 + 70*y2 + 50*y3 + 2*x1T + 4*x2T + 5*x3T + 3*xTD
+prob += x1T - 50 * y1 <= 0, "Cap_W1"
+prob += x2T - 50 * y2 <= 0, "Cap_W2"
+prob += x3T - 50 * y3 <= 0, "Cap_W3"
+prob += x1T + x2T + x3T - xTD == 0, "Hub_T_Balance"
+prob += xTD == 80, "Sink_D_Demand"
+
+res = prob.solve()
+print(f"Status: {res.status.name}, Cost Z* = ${pulp.value(prob.objective):.2f}")
+print(f"Open: y1={y1.varValue:.0f}, y2={y2.varValue:.0f}, y3={y3.varValue:.0f}")
+print(f"Flow: x1T={x1T.varValue:.0f}, x2T={x2T.varValue:.0f}, xTD={xTD.varValue:.0f}")
+\end{lstlisting}
+\end{column}
+\begin{column}{0.39\textwidth}
+\begin{block}{Console Output}
+\footnotesize
+\texttt{Status: Optimal}\\
+\texttt{Cost Z* = \$650.00}\\
+\texttt{Open: y1=1, y2=1, y3=0}\\
+\texttt{Flow: x1T=50, x2T=30, xTD=80}
+\end{block}
+\begin{alertblock}{LP Relaxation Trap}
+\scriptsize
+If $y_i$ were relaxed to continuous $0 \le y_i \le 1$, the solver would set $y_2 = 30/50 = 0.6$ to pay only $60\%$ of $W_2$'s fixed fee ($Z_{\text{LP}} = \$622.00$). Enforcing \texttt{LpBinary} ensures full setup fees are paid!
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+% ======================================================================
+% SECTION: Store Location Problem (Set Covering)
+% ======================================================================
+\section{Store Location Problem (Set Covering)}
+\begin{frame}\sectionpage\end{frame}
+
+% ----------------------------------------------------------------------
+% SLIDE 48: Problem Setup & City Grid Diagram
+% ----------------------------------------------------------------------
+\begin{frame}{Store Location on a City Grid}{The Set Covering Problem}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.51\textwidth}
+  \scriptsize
+  \textbf{Retail Network Coverage Problem:}
+  \begin{itemize}\setlength{\itemsep}{1.5pt}
+    \item A retail chain is entering a city divided into a \textbf{$2 \times 3$ grid of 6 sectors} ($1, \dots, 6$).
+    \item Opening a store in Sector $j$ serves customers in \textbf{Sector $j$ itself} plus all \textbf{orthogonally adjacent sectors} (sharing a horizontal or vertical border; diagonals do not count).
+    \item \textbf{Goal:} Open the \textbf{minimum number of stores} so every sector is covered by \emph{at least one} store.
+  \end{itemize}
+  \vspace{2pt}
+  \centering
+  {\scriptsize\setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}cl@{}}
+    \toprule
+    \textbf{Sector $i$} & \textbf{Adjacent Neighborhood $N(i)$ (Can Cover $i$)} \\
+    \midrule
+    Sector 1 & $\{1, 2, 4\}$ \\
+    Sector 2 & $\{1, 2, 3, 5\}$ \\
+    Sector 3 & $\{2, 3, 6\}$ \\
+    Sector 4 & $\{1, 4, 5\}$ \\
+    Sector 5 & $\{2, 4, 5, 6\}$ \\
+    Sector 6 & $\{3, 5, 6\}$ \\
+    \bottomrule
+  \end{tabular}}
+\end{column}
+\begin{column}{0.46\textwidth}
+  \centering
+  \begin{tikzpicture}[every node/.style={font=\scriptsize}]
+    % Top Grid: City Map
+    \node[font=\scriptsize\bfseries, blue!75!black] at (1.95, 2.05) {City Grid: 6 Sectors ($2 \times 3$)};
+    \foreach \col/\sec in {0/1, 1/2, 2/3} {
+      \draw[thick, draw=blue!75!black, fill=blue!6] (\col*1.3, 0.9) rectangle ++(1.3, 0.85)
+        node[pos=0.5, align=center] {\textbf{Sector \sec}};
+    }
+    \foreach \col/\sec in {0/4, 1/5, 2/6} {
+      \draw[thick, draw=blue!75!black, fill=blue!6] (\col*1.3, 0.05) rectangle ++(1.3, 0.85)
+        node[pos=0.5, align=center] {\textbf{Sector \sec}};
+    }
+
+    % Bottom Grid: Example Coverage from Sector 2
+    \begin{scope}[yshift=-2.35cm]
+      \node[font=\scriptsize\bfseries, green!50!black] at (1.95, 2.05) {Example: Store in Sector 2 ($x_2 = 1$)};
+      % Sector 1 (covered)
+      \draw[thick, draw=blue!75!black, fill=blue!15] (0, 0.9) rectangle ++(1.3, 0.85)
+        node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 1}\\Covered};
+      % Sector 2 (store)
+      \draw[very thick, draw=green!55!black, fill=green!25] (1.3, 0.9) rectangle ++(1.3, 0.85)
+        node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 2}\\\textbf{STORE}};
+      % Sector 3 (covered)
+      \draw[thick, draw=blue!75!black, fill=blue!15] (2.6, 0.9) rectangle ++(1.3, 0.85)
+        node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 3}\\Covered};
+      % Sector 4 (uncovered)
+      \draw[thick, dashed, draw=red!70!black, fill=red!10] (0, 0.05) rectangle ++(1.3, 0.85)
+        node[pos=0.5, align=center, font=\tiny, red!75!black] {\textbf{Sector 4}\\Uncovered};
+      % Sector 5 (covered)
+      \draw[thick, draw=blue!75!black, fill=blue!15] (1.3, 0.05) rectangle ++(1.3, 0.85)
+        node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 5}\\Covered};
+      % Sector 6 (uncovered)
+      \draw[thick, dashed, draw=red!70!black, fill=red!10] (2.6, 0.05) rectangle ++(1.3, 0.85)
+        node[pos=0.5, align=center, font=\tiny, red!75!black] {\textbf{Sector 6}\\Uncovered};
+
+      % Coverage arrows from Sector 2
+      \draw[-Stealth, thick, green!50!black] (1.35, 1.32) -- (1.05, 1.32);
+      \draw[-Stealth, thick, green!50!black] (2.55, 1.32) -- (2.85, 1.32);
+      \draw[-Stealth, thick, green!50!black] (1.95, 0.95) -- (1.95, 0.72);
+    \end{scope}
+  \end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ----------------------------------------------------------------------
+% SLIDE 49: Binary Decision Variables and Coverage Logic
+% ----------------------------------------------------------------------
+\begin{frame}{Binary Decision Variables and Coverage Logic}{Translating Grid Adjacency into Linear Inequalities}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+  \begin{block}{1. Binary Location Variables ($x_j \in \{0,1\}$)}
+    \scriptsize
+    For each grid sector $j \in \{1, 2, 3, 4, 5, 6\}$:
+    \[
+      x_j = \begin{cases}
+        1 & \text{if a store is opened in Sector } j, \\
+        0 & \text{otherwise.}
+      \end{cases}
+    \]
+  \end{block}
+  \begin{block}{2. Objective Function}
+    \scriptsize
+    Minimize the total number of stores opened across the city:
+    \[
+      \min \quad Z = \sum_{j=1}^6 x_j = x_1 + x_2 + x_3 + x_4 + x_5 + x_6
+    \]
+  \end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+  \begin{alertblock}{3. Set Covering Constraint Rule}
+    \scriptsize
+    Every sector $i \in \{1,\dots,6\}$ must have \textbf{at least one} open store within its neighborhood $N(i)$:
+    \[
+      \mathbf{\sum_{j \in N(i)} x_j \ge 1 \quad \forall i \in \{1,\dots,6\}}
+    \]
+  \end{alertblock}
+  \begin{exampleblock}{Examples of Sector Coverage Constraints}
+    \scriptsize
+    \begin{itemize}\setlength{\itemsep}{2pt}
+      \item \textbf{Sector 1} ($N(1) = \{1, 2, 4\}$):
+        \[
+          x_1 + x_2 + x_4 \ge 1
+        \]
+      \item \textbf{Sector 2} ($N(2) = \{1, 2, 3, 5\}$):
+        \[
+          x_1 + x_2 + x_3 + x_5 \ge 1
+        \]
+    \end{itemize}
+  \end{exampleblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ----------------------------------------------------------------------
+% SLIDE 50: Complete 0-1 ILP Formulation
+% ----------------------------------------------------------------------
+\begin{frame}{Complete 0-1 ILP Formulation: Grid Store Location}{Set Covering Model for All Six Sectors}
+  \footnotesize
+  \[
+    \min \quad Z = x_1 + x_2 + x_3 + x_4 + x_5 + x_6
+  \]
+  \textbf{Subject to (One Coverage Constraint per Sector):}
+  \begin{alignat*}{7}
+    x_1 &+ x_2 &      &      &+ x_4 &      &      &\ge 1 &\quad &\text{(Cover Sector 1: } \{1,2,4\}\text{)} \\
+    x_1 &+ x_2 &+ x_3 &      &      &+ x_5 &      &\ge 1 &\quad &\text{(Cover Sector 2: } \{1,2,3,5\}\text{)} \\
+        &  x_2 &+ x_3 &      &      &      &+ x_6 &\ge 1 &\quad &\text{(Cover Sector 3: } \{2,3,6\}\text{)} \\
+    x_1 &      &      &+ x_4 &+ x_5 &      &      &\ge 1 &\quad &\text{(Cover Sector 4: } \{1,4,5\}\text{)} \\
+        &  x_2 &      &+ x_4 &+ x_5 &+ x_6 &      &\ge 1 &\quad &\text{(Cover Sector 5: } \{2,4,5,6\}\text{)} \\
+        &      &  x_3 &      &      &+ x_5 &+ x_6 &\ge 1 &\quad &\text{(Cover Sector 6: } \{3,5,6\}\text{)}
+  \end{alignat*}
+  \[
+    x_1, x_2, x_3, x_4, x_5, x_6 \in \{0, 1\}
+  \]
+  \vspace{-0.4em}
+  \begin{block}{Why $\ge 1$ Instead of $= 1$?}
+    \scriptsize
+    Using $\ge 1$ (\emph{Set Covering}) allows overlapping coverage when convenient; forcing $= 1$ (\emph{Exact Set Partitioning}) would forbid a sector from bordering two open stores!
+  \end{block}
+\end{frame}
+
+% ----------------------------------------------------------------------
+% SLIDE 51: Optimal Solution & Visual Coverage Maps
+% ----------------------------------------------------------------------
+\begin{frame}{Optimal Solution: Covering the Grid with Two Stores}{Analyzing Optimal Store Placements ($Z^* = 2$)}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.51\textwidth}
+  \scriptsize
+  \vspace{-4pt}
+  \begin{alertblock}{Why 1 Store Is Impossible ($Z \ge 2$)}
+    Central Sectors $2$ and $5$ cover $|N(i)| = 4$ sectors each. Since $4 < 6$, \textbf{no single store can cover all 6 sectors}.
+  \end{alertblock}
+  \vspace{-5pt}
+  \begin{exampleblock}{Optimal Solution A: Central Spine $\{2, 5\}$}
+    \begin{itemize}\setlength{\itemsep}{0pt}
+      \item Set $\mathbf{x_2^* = 1, \; x_5^* = 1}$ (all other $x_j^* = 0 \implies \mathbf{Z^* = 2}$).
+      \item Store 2 covers $\{1, 2, 3, 5\}$; Store 5 covers $\{2, 4, 5, 6\}$.
+      \item Union $= \{1,\dots,6\}$ (Sectors $2$ \& $5$ have \emph{double coverage}).
+    \end{itemize}
+  \end{exampleblock}
+  \vspace{-5pt}
+  \begin{block}{Optimal Solution B: Opposite Corners $\{1, 6\}$ or $\{3, 4\}$}
+    \begin{itemize}\setlength{\itemsep}{0pt}
+      \item Set $\mathbf{x_1^* = 1, \; x_6^* = 1}$ (or $\mathbf{x_3^* = 1, \; x_4^* = 1}$) $\implies \mathbf{Z^* = 2}$.
+      \item Store 1 covers $\{1, 2, 4\}$; Store 6 covers $\{3, 5, 6\}$ (zero overlap).
+    \end{itemize}
+  \end{block}
+\end{column}
+\begin{column}{0.46\textwidth}
+  \centering
+  \vspace{-2pt}
+  \begin{tikzpicture}[every node/.style={font=\scriptsize}]
+    % Top Grid: Central Spine {2, 5}
+    \node[font=\scriptsize\bfseries, green!50!black] at (1.95, 1.94) {Optimum A: Central Spine ($x_2^*=1, x_5^*=1$)};
+    \draw[thick, draw=blue!75!black, fill=blue!12] (0, 0.88) rectangle ++(1.3, 0.78)
+      node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 1}\\(by $S_2$)};
+    \draw[very thick, draw=green!55!black, fill=green!25] (1.3, 0.88) rectangle ++(1.3, 0.78)
+      node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 2}\\\textbf{STORE}};
+    \draw[thick, draw=blue!75!black, fill=blue!12] (2.6, 0.88) rectangle ++(1.3, 0.78)
+      node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 3}\\(by $S_2$)};
+    \draw[thick, draw=blue!75!black, fill=blue!12] (0, 0.10) rectangle ++(1.3, 0.78)
+      node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 4}\\(by $S_5$)};
+    \draw[very thick, draw=green!55!black, fill=green!25] (1.3, 0.10) rectangle ++(1.3, 0.78)
+      node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 5}\\\textbf{STORE}};
+    \draw[thick, draw=blue!75!black, fill=blue!12] (2.6, 0.10) rectangle ++(1.3, 0.78)
+      node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 6}\\(by $S_5$)};
+
+    % Bottom Grid: Opposite Corners {1, 6}
+    \begin{scope}[yshift=-2.15cm]
+      \node[font=\scriptsize\bfseries, orange!85!black] at (1.95, 1.94) {Optimum B: Opposite Corners ($x_1^*=1, x_6^*=1$)};
+      \draw[very thick, draw=orange!85!black, fill=orange!25] (0, 0.88) rectangle ++(1.3, 0.78)
+        node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 1}\\\textbf{STORE}};
+      \draw[thick, draw=orange!85!black, fill=orange!12] (1.3, 0.88) rectangle ++(1.3, 0.78)
+        node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 2}\\(by $S_1$)};
+      \draw[thick, draw=blue!75!black, fill=blue!12] (2.6, 0.88) rectangle ++(1.3, 0.78)
+        node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 3}\\(by $S_6$)};
+      \draw[thick, draw=orange!85!black, fill=orange!12] (0, 0.10) rectangle ++(1.3, 0.78)
+        node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 4}\\(by $S_1$)};
+      \draw[thick, draw=blue!75!black, fill=blue!12] (1.3, 0.10) rectangle ++(1.3, 0.78)
+        node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 5}\\(by $S_6$)};
+      \draw[very thick, draw=blue!75!black, fill=blue!25] (2.6, 0.10) rectangle ++(1.3, 0.78)
+        node[pos=0.5, align=center, font=\tiny] {\textbf{Sector 6}\\\textbf{STORE}};
+    \end{scope}
+  \end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ----------------------------------------------------------------------
+% SLIDE 52: PuLP 4.0 Implementation
+% ----------------------------------------------------------------------
+\begin{frame}[fragile]{Store Location Set Covering in Python (PuLP 4.0)}{Example 7: Dictionary-Driven Neighborhood Coverage Model}
+\begin{columns}[T]
+\begin{column}{0.58\textwidth}
+\begin{lstlisting}
+import pulp
+
+prob = pulp.LpProblem("City_Grid_Set_Covering", pulp.LpMinimize)
+
+sectors = [1, 2, 3, 4, 5, 6]
+neighbors = {
+    1: [1, 2, 4],    2: [1, 2, 3, 5], 3: [2, 3, 6],
+    4: [1, 4, 5],    5: [2, 4, 5, 6], 6: [3, 5, 6],
+}
+
+# Binary store location variables x[1] .. x[6]
+x = {j: prob.add_variable(f"x_{j}", cat=pulp.LpBinary) for j in sectors}
+
+# Objective: Minimize total number of stores opened
+prob += sum(x[j] for j in sectors), "Total_Stores"
+
+# Coverage constraint for each sector i
+for i in sectors:
+    prob += sum(x[j] for j in neighbors[i]) >= 1, f"Cover_Sector_{i}"
+
+res = prob.solve()
+chosen = [j for j in sectors if x[j].varValue > 0.5]
+print(f"Status: {res.status.name}, Min Stores Z* = {pulp.value(prob.objective):.0f}")
+print(f"Open Stores in Sectors: {chosen}")
+\end{lstlisting}
+\end{column}
+\begin{column}{0.39\textwidth}
+\begin{block}{Console Output}
+\footnotesize
+\texttt{Status: Optimal}\\
+\texttt{Min Stores Z* = 2}\\
+\texttt{Open Stores in Sectors:}\\
+\texttt{[3, 4]} \textit{(or \texttt{[2, 5]} / \texttt{[1, 6]})}
+\end{block}
+\begin{alertblock}{Modeling Scalability}
+\scriptsize
+By storing adjacency lists in a Python dictionary \texttt{neighbors[i]}, the exact same \texttt{for}-loop scales effortlessly from a 6-sector grid to a 500-zip-code metropolitan network!
 \end{alertblock}
 \end{column}
 \end{columns}
@@ -1514,472 +2006,8 @@ Combining $\mathbf{x_1 + x_2 \ge 6y}$ with $\mathbf{x_i \le 18y}$ creates a \tex
 \item \textbf{Computational Complexity:} ILPs are $\mathcal{NP}$-hard in general; solving an ILP requires solving a sequence of LP relaxations via Branch-and-Bound and Cutting Planes.
 \item \textbf{Solver Ecosystem:} Industrial-scale commercial MILP solvers (e.g., Gurobi, CPLEX) are expensive, whereas open-source MILP solvers like \textbf{CBC} (bundled free with Python's \texttt{PuLP}) solve small-to-medium ILPs effectively.
 \item \textbf{Duality \& Sensitivity:} Standard LP shadow prices and reduced costs do \textbf{not} directly apply to ILPs because discrete jumps break continuity.
-\item \textbf{Core Applications:} 0-1 selection problems (knapsack, assignment), logical conditions, fixed setup costs, and minimum order quantities (MOQ).
+\item \textbf{Core Applications:} 0-1 selection problems (knapsack, assignment, set covering / store location), logical conditions, fixed setup costs, minimum order quantities (MOQ), and fixed-charge transshipment networks.
 \end{itemize}
-\end{frame}
-
-
-\section{Comments about the Upcoming Midterm}
-\begin{frame}\sectionpage\end{frame}
-
-\begin{frame}{Exam Structure}
-\begin{itemize}
-  \item \textbf{Online exam:} between 35 and 40 questions
-  \item Availability and submission deadlines are on Canvas
-  \item Exam is not timed
-  \item Exam can be paused and resumed
-  \item Two attempts available (grade based on the \textbf{last} attempt)
-  \item If the average grade is less than 85\%, the exam will be curved to an average of 85\%
-  \item Exam is open book, notes, etc.
-  \item Okay to use AI
-  \item Exam is an individual effort
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Topics Covered on the Midterm}
-\begin{itemize}
-\item Basic Python trivia questions
-\item Basic Spreadsheet trivia
-    \item \textbf{Linear programming}
-    \begin{itemize}
-    \item product mix
-    \item staffing
-    \item transportation
-    \item assignment
-    \item blending
-\end{itemize}
-    \item \textbf{Sensitivity analysis}
-    \begin{itemize}
-  \item Reduced Costs
-  \item Shadow Prices
-\end{itemize}
-    \item \textbf{Integer linear programming}
-    \begin{itemize}
-    \item 0-1 problems
-    \item fixed cost problems
-    \end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Resources}
-\begin{itemize}
-\item Practice problems posted on Canvas
-\item Homeworks!
-\item AI: utilize what is available, go crazy.
-\end{itemize}
-\end{frame}
-
-
-\section{Practice Problems}
-\begin{frame}\sectionpage\end{frame}
-
-
-%====================== STAFFING (1/3) ======================
-\begin{frame}{Staffing Problem: Description}
-\textbf{Problem Context:}
-\begin{itemize}
-  \item A call center must schedule workers to cover daily shifts.
-  \item Each shift requires a minimum number of employees.
-  \item Employees work 5 consecutive days followed by 2 days off.
-  \item The objective is to minimize total staffing costs while meeting coverage.
-\end{itemize}
-
-\textbf{Goal:}
-\begin{itemize}
-  \item Decide how many employees to start on each day of the week.
-  \item Ensure daily staffing requirements are satisfied at minimum cost.
-\end{itemize}
-\end{frame}
-
-%====================== STAFFING (2/3) ======================
-\begin{frame}{Staffing Problem: Decision Variables and Constraints}
-\textbf{Decision Variables:}
-\begin{itemize}
-  \item $x_i$ = number of employees who start their 5-day workweek on day $i$, $i=1,\dots,7$
-\end{itemize}
-
-\textbf{Parameters:}
-\begin{itemize}
-  \item $c_i$ = cost of assigning an employee starting on day $i$
-  \item $r_j$ = minimum required employees on day $j$
-\end{itemize}
-
-\textbf{Key Constraints:}
-\begin{itemize}
-  \item Each day must have at least $r_j$ employees working.
-  \item Employees work 5 consecutive days, off 2 days.
-\end{itemize}
-\end{frame}
-
-%====================== STAFFING (3/3) ======================
-\begin{frame}{Staffing Problem: LP Formulation}
-\[
-\min Z = \sum_{i=1}^7 c_i x_i
-\]
-\[
-\text{s.t.}
-\begin{cases}
-x_1 + x_4 + x_5 + x_6 + x_7 \ge r_1 & \text{(Mon)}\\
-x_1 + x_2 + x_5 + x_6 + x_7 \ge r_2 & \text{(Tue)}\\
-x_1 + x_2 + x_3 + x_6 + x_7 \ge r_3 & \text{(Wed)}\\
-x_1 + x_2 + x_3 + x_4 + x_7 \ge r_4 & \text{(Thu)}\\
-x_1 + x_2 + x_3 + x_4 + x_5 \ge r_5 & \text{(Fri)}\\
-x_2 + x_3 + x_4 + x_5 + x_6 \ge r_6 & \text{(Sat)}\\
-x_3 + x_4 + x_5 + x_6 + x_7 \ge r_7 & \text{(Sun)}\\[4pt]
-x_i \ge 0 \quad \forall i
-\end{cases}
-\]
-\end{frame}
-
-%====================== BLENDING (1/3) ======================
-\begin{frame}{Blending Problem: Description}
-\textbf{Problem Context:}
-\begin{itemize}
-  \item A refinery produces a fuel blend using two raw materials.
-  \item Each raw material has a different cost and quality content.
-  \item The final product must meet a minimum quality standard.
-  \item The goal is to minimize total cost while satisfying demand and quality.
-\end{itemize}
-\end{frame}
-
-%====================== BLENDING (2/3) ======================
-\begin{frame}{Blending Problem: Decision Variables and Constraints}
-\textbf{Decision Variables:}
-\begin{itemize}
-  \item $x_1$ = barrels of crude A used
-  \item $x_2$ = barrels of crude B used
-\end{itemize}
-
-\textbf{Parameters:}
-\begin{itemize}
-  \item $c_1, c_2$ = costs per barrel of A and B
-  \item $q_1, q_2$ = quality measures of A and B
-  \item $Q_{\min}$ = minimum required blend quality
-  \item $D$ = demand (barrels of finished blend)
-\end{itemize}
-
-\textbf{Key Constraints:}
-\begin{itemize}
-  \item $x_1 + x_2 = D$ (total demand)
-  \item Weighted average quality $\ge Q_{\min}$
-  \item $x_1, x_2 \ge 0$
-\end{itemize}
-\end{frame}
-
-%====================== BLENDING (3/3) ======================
-\begin{frame}{Blending Problem: LP Formulation}
-\[
-\min Z = c_1x_1 + c_2x_2
-\]
-\[
-\text{s.t.}
-\begin{cases}
-x_1 + x_2 = D \\
-q_1x_1 + q_2x_2 \ge Q_{\min}(x_1 + x_2) \\
-x_1, x_2 \ge 0
-\end{cases}
-\]
-\textit{Interpretation:}
-Choose crude mix to meet quality and demand at lowest cost.
-\end{frame}
-
-
-%====================== TRANSSHIPMENT (1/3) ======================
-\begin{frame}{Transshipment Problem: Description}
-\textbf{Problem Context:}
-\begin{itemize}
-  \item A company ships goods from factories to warehouses, then to retailers.
-  \item Each arc (route) has a cost per unit shipped.
-  \item Factory supplies, warehouse capacities, and retailer demands are known.
-  \item The objective is to minimize total shipping cost.
-\end{itemize}
-\end{frame}
-
-%====================== TRANSSHIPMENT (2/3) ======================
-\begin{frame}{Transshipment Problem: Decision Variables and Constraints}
-\textbf{Decision Variables:}
-\begin{itemize}
-  \item $x_{ij}$ = units shipped from node $i$ to node $j$
-\end{itemize}
-
-\textbf{Parameters:}
-\begin{itemize}
-  \item $c_{ij}$ = shipping cost per unit from $i$ to $j$
-  \item $s_i$ = supply at source $i$
-  \item $d_j$ = demand at destination $j$
-\end{itemize}
-
-\textbf{Key Constraints:}
-\begin{itemize}
-  \item Flow conservation at each node:
-  \[
-  \sum_j x_{ij} - \sum_k x_{ki} = b_i
-  \]
-  where $b_i>0$ for sources, $b_i<0$ for sinks, $b_i=0$ for transshipment nodes.
-\end{itemize}
-\end{frame}
-
-%====================== TRANSSHIPMENT (3/3) ======================
-\begin{frame}{Transshipment Problem: LP Formulation}
-\[
-\min Z = \sum_{i}\sum_{j} c_{ij}x_{ij}
-\]
-\[
-\text{s.t. } \sum_{j} x_{ij} - \sum_{k} x_{ki} = b_i \quad \forall i
-\]
-\[
-x_{ij} \ge 0 \quad \forall i,j
-\]
-
-\textit{Interpretation:}
-Ship goods through a network of factories, warehouses, and retailers to minimize total transport cost.
-\end{frame}
-
-%====================== ASSIGNMENT (1/3) ======================
-\begin{frame}{Assignment Problem: Description}
-\textbf{Problem Context:}
-\begin{itemize}
-  \item A manager must assign a set of workers to a set of tasks.
-  \item Each worker can perform only one task, and each task requires exactly one worker.
-  \item The cost (or time) of assigning worker $i$ to task $j$ is known.
-  \item The objective is to minimize the total assignment cost.
-\end{itemize}
-
-\textbf{Goal:}
-\begin{itemize}
-  \item Determine the optimal one-to-one assignment between workers and tasks that yields the lowest total cost.
-\end{itemize}
-\end{frame}
-
-%====================== ASSIGNMENT (2/3) ======================
-\begin{frame}{Assignment Problem: Decision Variables and Constraints}
-\textbf{Decision Variables:}
-\begin{itemize}
-  \item $x_{ij} =
-    \begin{cases}
-    1 & \text{if worker $i$ is assigned to task $j$}\\
-    0 & \text{otherwise}
-    \end{cases}$
-\end{itemize}
-
-\textbf{Parameters:}
-\begin{itemize}
-  \item $c_{ij}$ = cost (or time) of assigning worker $i$ to task $j$
-\end{itemize}
-
-\textbf{Key Constraints:}
-\begin{itemize}
-  \item Each worker is assigned to exactly one task:
-    \[
-    \sum_j x_{ij} = 1 \quad \forall i
-    \]
-  \item Each task receives exactly one worker:
-    \[
-    \sum_i x_{ij} = 1 \quad \forall j
-    \]
-  \item Binary restriction: $x_{ij} \in \{0,1\}$
-\end{itemize}
-\end{frame}
-
-%====================== ASSIGNMENT (3/3) ======================
-\begin{frame}{Assignment Problem: Full LP Formulation}
-\[
-\min Z = \sum_i \sum_j c_{ij} x_{ij}
-\]
-
-\[
-\text{s.t.}
-\begin{cases}
-\sum_j x_{ij} = 1 & \forall i \quad \text{(each worker does one task)}\\[4pt]
-\sum_i x_{ij} = 1 & \forall j \quad \text{(each task has one worker)}\\[4pt]
-x_{ij} \in \{0,1\} & \forall i,j
-\end{cases}
-\]
-
-\textit{Interpretation:}
-Find the assignment pattern minimizing total cost (or maximizing efficiency) under one-to-one matching constraints.
-\end{frame}
-
-
-%====================== SLIDE 1 ======================
-\begin{frame}{New Product Decision: Problem Description}
-\textbf{Context:}
-\begin{itemize}
-  \item A firm produces Products A and B using two scarce resources:
-        Machine Hours (M) and Labor Hours (L).
-  \item A new Product C is being considered.
-  \item We can use \textbf{shadow prices} and \textbf{reduced cost}
-        from the current LP solution to decide if C should be added.
-\end{itemize}
-
-\textbf{Goal:}
-\begin{itemize}
-  \item Determine whether introducing Product C would increase total profit.
-\end{itemize}
-\end{frame}
-
-%====================== SLIDE 2 ======================
-\begin{frame}{Base Linear Program (Current Products A and B)}
-\textbf{Current LP:}
-\[
-\max Z = 30x_A + 20x_B
-\]
-\[
-\text{s.t.}
-\begin{cases}
-2x_A + 1x_B \le 100 & \text{(Machine hours M)}\\
-1x_A + 1.5x_B \le 90 & \text{(Labor hours L)}\\
-x_A, x_B \ge 0
-\end{cases}
-\]
-
-\textbf{Optimal Primal Solution:}
-\[
-x_A^\star = 30, \quad x_B^\star = 40, \quad Z^\star = 30(30) + 20(40) = \mathbf{\$1700}
-\]
-
-\textbf{Unique Shadow Prices (from binding constraints M and L):}
-\[
-\begin{cases}
-2y_M^\star + 1y_L^\star = 30 \\
-1y_M^\star + 1.5y_L^\star = 20
-\end{cases}
-\implies
-\mathbf{y_M^\star = \$12.50, \quad y_L^\star = \$5.00}
-\]
-\textit{Check Dual Objective:} $100(12.50) + 90(5.00) = 1250 + 450 = \$1700 = Z^\star$.
-\end{frame}
-
-%====================== SLIDE 3 ======================
-\begin{frame}{Candidate Product C}
-\textbf{Product C Data:}
-\[
-\begin{array}{lcc}
-\toprule
- & \text{Profit } c_i & \text{Resource Use (M, L)} \\
-\midrule
-\text{Product C} & \$26 & (1,\,2)\\
-\bottomrule
-\end{array}
-\]
-
-\textbf{Idea:}
-\begin{itemize}
-  \item Product C earns \$26 per unit and uses 1 hour of Machine time and 2 hours of Labor.
-  \item We test profitability using the \emph{reduced cost} (net marginal benefit) formula:
-  \[
-  r_C = c_C - \sum_i y_i^\star a_{iC} = c_C - \left(y_M^\star a_{MC} + y_L^\star a_{LC}\right)
-  \]
-\end{itemize}
-\end{frame}
-
-%====================== SLIDE 4 ======================
-\begin{frame}{Reduced Cost Calculation and Decision}
-\textbf{Compute Reduced Cost for Product C:}
-\[
-r_C = 26 - (12.50 \times 1 + 5.00 \times 2)
-     = 26 - (12.50 + 10.00)
-     = \boxed{+\$3.50 > 0}
-\]
-
-\textbf{Interpretation:}
-\begin{itemize}
-  \item $r_C = +\$3.50 > 0 \implies$ Each unit of Product C adds \$3.50 in net profit above the opportunity cost of its resources (\$22.50).
-  \item Therefore, \textcolor{green!50!black}{\textbf{Product C should be produced}} (it enters the optimal basis).
-\end{itemize}
-
-\textbf{Example of a Non-Profitable Candidate (Product D, $c_D = \$18$, uses $2\text{ M}, 1\text{ L}$):}
-\[
-r_D = 18 - (12.50 \times 2 + 5.00 \times 1) = 18 - 30.00 = -\$12.00 \le 0
-\]
-\textcolor{red!60!black}{\textbf{Product D should not be added}} (opportunity cost of resources is \$30, exceeding its \$18 profit).
-\end{frame}
-
-%====================== SLIDE 5 ======================
-\begin{frame}{Interpreting Shadow Prices}
-\textbf{Shadow Price ($y_i^\star$):}
-\begin{itemize}
-  \item Represents the change in optimal objective value $Z^\star$
-        per unit increase in the RHS of a binding constraint.
-  \item Example (Machine Hours):
-  \[
-  \frac{\Delta Z^\star}{\Delta \text{Machine hours}} = y_M^\star = \$12.50
-  \]
-  \item Meaning: one extra machine hour increases maximum profit by \textbf{\$12.50}.
-\end{itemize}
-
-\textbf{Valid Range:}
-\begin{itemize}
-  \item Shadow prices remain constant only within the allowable RHS range
-        where the current optimal basis remains feasible ($60 \le \text{RHS}_M \le 180$).
-\end{itemize}
-\end{frame}
-
-%====================== SLIDE 6 ======================
-\begin{frame}{Effect of RHS (Resource) Changes}
-\textbf{Scenario: Increase Machine Hours by 5 units ($\text{RHS}_M: 100 \to 105$)}
-\[
-\Delta Z = y_M^\star \times 5 = 12.50 \times 5 = \$62.50
-\]
-\[
-Z_{\text{new}} = 1700 + 62.50 = \boxed{\$1762.50}
-\]
-
-\textbf{Interpretation:}
-\begin{itemize}
-  \item Within the allowable range, each additional 1 hour of M raises profit by \$12.50.
-  \item If M increases beyond 180 hours, Labor becomes the sole bottleneck, the basis changes, and $y_M^\star = \$12.50$ no longer holds.
-\end{itemize}
-
-\textit{Takeaway:}
-Shadow prices and reduced costs help managers evaluate new products
-or resource changes \emph{without re-solving the LP from scratch}.
-\end{frame}
-
-%====================== SLIDE 7: PuLP 4.0 Verification ======================
-\begin{frame}[fragile]{Verifying Shadow Prices \& Reduced Costs in Python (PuLP 4.0)}{Example 6: Extracting Dual Prices (\texttt{c.pi}) and Testing Candidate Products}
-\begin{columns}[T]
-\begin{column}{0.58\textwidth}
-\begin{lstlisting}
-import pulp
-
-prob = pulp.LpProblem("Base_Product_Mix", pulp.LpMaximize)
-xA = prob.add_variable("xA", lowBound=0, cat=pulp.LpContinuous)
-xB = prob.add_variable("xB", lowBound=0, cat=pulp.LpContinuous)
-
-prob += 30 * xA + 20 * xB, "Total_Profit"
-prob += 2 * xA + 1 * xB <= 100, "Machine_Hours"
-prob += 1 * xA + 1.5 * xB <= 90, "Labor_Hours"
-
-res = prob.solve()
-z_opt = pulp.value(prob.objective)
-print(f"Status: {res.status.name}, Z* = ${z_opt:.2f}")
-print(f"xA* = {xA.varValue:.1f}, xB* = {xB.varValue:.1f}")
-
-# Extract Shadow Prices from prob.constraints() list in PuLP 4.0
-duals = {c.name: abs(c.pi) for c in prob.constraints()}
-print("Shadow Prices:", duals)
-r_C = 26 - (1 * duals["Machine_Hours"] + 2 * duals["Labor_Hours"])
-print(f"Reduced Cost of Product C: r_C = +${r_C:.2f}")
-\end{lstlisting}
-\end{column}
-\begin{column}{0.39\textwidth}
-\begin{block}{Console Output}
-\footnotesize
-\texttt{Status: Optimal, Z* = \$1700.00}\\
-\texttt{xA* = 30.0, xB* = 40.0}\\
-\texttt{Shadow Prices:}\\
-\texttt{\{'Machine\_Hours': 12.5,}\\
-\texttt{ 'Labor\_Hours': 5.0\}}\\
-\texttt{Reduced Cost of Product C:}\\
-\texttt{r\_C = +\$3.50}
-\end{block}
-\begin{alertblock}{PuLP 4.0 Note}
-\scriptsize
-In PuLP 4.0, \texttt{prob.constraints()} is a method returning a list of constraint objects. Access \texttt{c.name} and \texttt{abs(c.pi)} to retrieve shadow prices!
-\end{alertblock}
-\end{column}
-\end{columns}
 \end{frame}
 
 \end{document}
