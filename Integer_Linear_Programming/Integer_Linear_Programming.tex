@@ -74,7 +74,26 @@
 \end{frame}
 
 % ----------------------------------------------------------------------
-% SLIDE 2: LP vs. ILP Definition
+% SLIDE 2: Agenda - ILPs Introduced in Class
+% ----------------------------------------------------------------------
+\begin{frame}{Agenda: Integer Linear Programs Introduced in Class}
+  \small
+  \vspace{-0.3em}
+  \textbf{Welcome!} In this deck, we formulate and solve seven foundational \textbf{Integer (ILP)} and \textbf{Mixed-Integer (MILP)} models in \texttt{PuLP 4.0}:
+  \vspace{-0.2em}
+  \begin{enumerate}\setlength{\itemsep}{-0.05em}
+    \item \textbf{Pure ILP \& Branch-and-Bound:} Discrete production, why LP rounding fails, and exact tree search.
+    \item \textbf{0--1 Knapsack Problem:} Binary take-or-leave selection ($x_i \in \{0,1\}$) under a capacity limit vs.\ greedy heuristics.
+    \item \textbf{Knapsack with Logical Constraints:} Conditional inclusion ($x_1 \le x_2$), mandatory selection ($x_1 = 1$), mutual exclusion ($x_1 + x_2 \le 1$), and XOR ($x_1 + x_2 = 1$).
+    \item \textbf{Fixed-Charge Production (MILP):} Activating a facility at a fixed setup cost using a Big-$M$ linking constraint ($x_1 + x_2 \le My$).
+    \item \textbf{Minimum Purchase Quantity / Threshold Problem (MILP):} Enforcing order thresholds via two-sided switching constraints ($6y \le x_1 + x_2 \le 16y$).
+    \item \textbf{Fixed-Charge Transshipment (MILP):} Joint warehouse selection ($y_i \in \{0,1\}$) and multi-echelon network flow conservation.
+    \item \textbf{Store Location / Set Covering (Binary ILP):} Covering all city grid sectors with the minimum number of stores ($\sum_{j \in N(i)} x_j \ge 1$).
+  \end{enumerate}
+\end{frame}
+
+% ----------------------------------------------------------------------
+% SLIDE 3: LP vs. ILP Definition
 % ----------------------------------------------------------------------
 \begin{frame}{What is Integer Linear Programming?}
   \begin{columns}[T]
