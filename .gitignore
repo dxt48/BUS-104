@@ -91,7 +91,13 @@ ehthumbs.db
 !*.ipynb
 
 # ==============================================================================
-# Exams and Quizzes (Do Not Sync)
+# Exams, Quizzes, and Instructor Files (Do Not Sync)
 # ==============================================================================
 Exams and Quizzes/
 Teaching Notes/
+.latexmkrc
+**/.latexmkrc
+**/*_Instructor.*
+**/*_INSTRUCTOR.*
+**/*_Solutions.pdf
+
