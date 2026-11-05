@@ -89,6 +89,9 @@ ehthumbs.db
 !*.pptm
 !*.md
 !*.ipynb
+!Non-Linear Programming/*.pdf
+!Non-Linear Programming/*.ipynb
+!Non-Linear Programming/*.xlsx
 
 # ==============================================================================
 # Exams, Quizzes, and Instructor Files (Do Not Sync)
@@ -100,4 +103,8 @@ Teaching Notes/
 **/*_Instructor.*
 **/*_INSTRUCTOR.*
 **/*_Solutions.pdf
+Non-Linear Programming/*_Instructor.*
+Non-Linear Programming/.latexmkrc
+Portolio_Sim_Game.pdf
+Portfolio_Sim_Game.pdf
 
