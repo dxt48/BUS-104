@@ -92,12 +92,19 @@ ehthumbs.db
 !Non-Linear Programming/*.pdf
 !Non-Linear Programming/*.ipynb
 !Non-Linear Programming/*.xlsx
+!Homework_Files/*.ipynb
+!Homework_Files/*.xlsx
+!Homework_Files/*.csv
+!Homework_Files/*.pdf
+!Homework_Files/*.md
 
 # ==============================================================================
 # Exams, Quizzes, and Instructor Files (Do Not Sync)
 # ==============================================================================
 Exams and Quizzes/
 Teaching Notes/
+**/*_Homework.zip
+**/*_Homework_Bank.md
 .latexmkrc
 **/.latexmkrc
 **/*_Instructor.*
