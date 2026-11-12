@@ -1425,7 +1425,25 @@ notesEl.addEventListener('input', () => {
   localStorage.setItem('bus104_nlp_sim_notes', notesEl.value);
 });
 
-window.addEventListener('load', renderAll);
+window.addEventListener('load', () => {
+  const params = new URLSearchParams(window.location.search);
+  const rParam = parseInt(params.get('round'), 10);
+  const partParam = (params.get('part') || '').toUpperCase();
+  if (rParam >= 1 && rParam <= 5) {
+    switchTab(rParam);
+    if (partParam === 'B') {
+      const panel = document.getElementById('panel-' + rParam);
+      if (panel) {
+        const cards = panel.querySelectorAll('.card');
+        if (cards.length >= 2) {
+          panel.insertBefore(cards[1], cards[0]);
+        }
+      }
+    }
+  } else {
+    renderAll();
+  }
+});
 </script>
 </body>
 </html>
