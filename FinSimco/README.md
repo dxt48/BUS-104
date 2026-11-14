@@ -10,8 +10,9 @@ Welcome to the **FinSimco** folder! Everything you need for the **Online Case St
 
 ## Key Deadlines (At a Glance)
 1. **Monday, Nov 23 (11:59 PM) — HARD PURCHASE CUTOFF:** Buy the Harvard Course Pack at `https://hbsp.harvard.edu/import/1456741` using your **exact UCR Canvas email and full name**. If you miss this deadline, you cannot be placed on a team and will receive **0%**.
-2. **Monday, Nov 30 – Friday, Dec 4 — Play Window:** Teams of 3 complete Quarters 1–4 in Finsimco.
-3. **Friday, Dec 4 (11:59 PM) — Individual Submission Due on Canvas:** Every student must individually submit their Team `#`, Finsimco Certificate, Optimization File (`.ipynb` or Excel), and brief summary on Canvas.
+2. **By Wednesday, Nov 25 — Teams Assigned:** Teams of 3 will be assigned from students who purchased the case by the Nov 23 cutoff.
+3. **Monday, Nov 30 – Friday, Dec 4 — Play Window:** Teams of 3 complete Quarters 1–4 in Finsimco.
+4. **Friday, Dec 4 (11:59 PM) — Individual Submission Due on Canvas:** Every student must individually submit their Team `#`, Finsimco Certificate, Optimization File (`.ipynb` or Excel), and brief summary on Canvas.
 
 ---
 
