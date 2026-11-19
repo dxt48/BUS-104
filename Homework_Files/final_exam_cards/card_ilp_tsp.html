@@ -14,14 +14,14 @@
 </style>
 </head>
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" ondragstart="return false;">
-<div class="alt-summary" aria-hidden="true">with distance entries d(D,A)=4, d(D,B)=5, d(D,C)=16, d(A,B)=7, d(A,C)=9, d(B,C)=15</div>
+<div class="alt-summary" aria-hidden="true">with distance table d(D,A)=4, d(D,B)=5, d(D,C)=11, d(A,B)=6, d(A,C)=9, d(B,C)=8</div>
 <div class="wrap">
   <canvas id="qcanvas"></canvas>
 </div>
 <script>
 (function() {
-  const ENC = "TkFQB10DXRUKEBV0N2MWBwVXEkbb5JoXEHlZQgdXU0QVM0AJXhZZWl1ZWVFC0raiFSdXClASXUVJEGVZF0RfWFJDegNMFlFERFlUFE4QFFpcDVcVG14YbBJxF1UDXUZDRkNWA1UNTlJCSRdAA14WRUECQBJKRFlZVBBSWAZDFldBQ3YDSQtMFxh0HhYDXlIWWBZBEhkSUURZRBdFFl9GRRUiHkZ7SBhWXlQXdUJfWFVQQ1cHWgwWFRwQFWUbXVtTQRFbBRkASl5GWVlRQlRfRUECXAVcFxgfXVlbUxEZFlRQF0UDXAoYUkZVRU9CQFdfR0NdABkIV1RRRF5ZDEMWV0cGEhVRC09ZEFJSWg1HDBRoTxJETQVaW1USDRYZEl5TVAdXFEpGAhdrEntZAVFCX1oNEEoZRnxSQF9DFkp0HxQZQxA1TQtIF3ESGxZAY0JZRUNwRBVEGmREX0cWIRJrGhVBQAlOFxoNEGtsFCZVRllBQxoiEEYUFxIAFRpCEgUUGUMQUhtIGBUBBRVrThBtFGYXXRYZJRobEBIEFE4QFAYXTxJED0YUFxIIFWtOEG0UZhddFhkmGhsQEgMUThAUABdPEkQJRhQXEgEDFD8cFm0XMEYJSUR7FRwQFQdXEhoWF1sQShlGCQMSHBcUUhJraxlDEAVWCG9SWVdfQhESDBZuUxxUFUQIGQIcFwZMAhoWBU0AShlUFgVtTRsWQFNZUlBBCEZXEVRbTQ==";
-  const KEY = "5c2f9d870076b066";
+  const ENC = "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";
+  const KEY = "c9d4806d60863d47";
   function decodePayload(b64, key) {
     const bin = atob(b64);
     const bytes = new Uint8Array(bin.length);
@@ -62,6 +62,131 @@
     return out;
   }
 
+  function drawMap(mapSpec, padX, topY, maxW) {
+    const panelH = 200;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(padX, topY, maxW, panelH);
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(padX, topY, maxW, panelH);
+
+    // Map header caption
+    ctx.font = "700 11.5px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    ctx.fillStyle = "#0a2240";
+    ctx.fillText(mapSpec.title || "Campus Walkway Grid", padX + 10, topY + 17);
+
+    // Legend top-right
+    if (mapSpec.legend && mapSpec.legend.length) {
+      ctx.font = "11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      let lx = padX + maxW - 12;
+      for (let i = mapSpec.legend.length - 1; i >= 0; i--) {
+        const leg = mapSpec.legend[i];
+        const tw = ctx.measureText(leg.label).width;
+        lx -= tw;
+        ctx.fillStyle = "#334155";
+        ctx.fillText(leg.label, lx, topY + 17);
+        lx -= 14;
+        ctx.fillStyle = leg.color;
+        if (leg.shape === "square") {
+          ctx.fillRect(lx, topY + 8, 9, 9);
+        } else {
+          ctx.beginPath();
+          ctx.arc(lx + 4.5, topY + 12.5, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        lx -= 16;
+      }
+    }
+
+    const plotL = padX + 44;
+    const plotR = padX + maxW - 24;
+    const plotT = topY + 32;
+    const plotB = topY + panelH - 26;
+    const plotW = plotR - plotL;
+    const plotH = plotB - plotT;
+    const xMax = mapSpec.xMax || 8;
+    const yMax = mapSpec.yMax || 4;
+    const toPxX = x => plotL + (x / xMax) * plotW;
+    const toPxY = y => plotB - (y / yMax) * plotH;
+
+    // Grid lines
+    ctx.save();
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    for (let gx = 0; gx <= xMax; gx++) {
+      const px = toPxX(gx);
+      ctx.beginPath(); ctx.moveTo(px, plotT); ctx.lineTo(px, plotB); ctx.stroke();
+    }
+    for (let gy = 0; gy <= yMax; gy++) {
+      const py = toPxY(gy);
+      ctx.beginPath(); ctx.moveTo(plotL, py); ctx.lineTo(plotR, py); ctx.stroke();
+    }
+    ctx.restore();
+
+    // Axes frame & ticks
+    ctx.strokeStyle = "#94a3b8";
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(plotL, plotT, plotW, plotH);
+    ctx.font = "10.5px ui-monospace, SFMono-Regular, Menlo, monospace";
+    ctx.fillStyle = "#475569";
+    ctx.textAlign = "center";
+    for (let gx = 0; gx <= xMax; gx++) {
+      ctx.fillText(String(gx), toPxX(gx), plotB + 13);
+    }
+    ctx.fillStyle = "#64748b";
+    ctx.fillText(mapSpec.xLabel || "East-West Street Block (x)", plotL + plotW / 2, plotB + 23);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#475569";
+    for (let gy = 0; gy <= yMax; gy++) {
+      ctx.fillText(String(gy), plotL - 7, plotB - (gy / yMax) * plotH + 3.5);
+    }
+    ctx.textAlign = "left";
+
+    // Optional tour/reference dashed segments
+    if (mapSpec.edges && mapSpec.edges.length) {
+      const nodeById = {};
+      (mapSpec.nodes || []).forEach(n => { nodeById[n.id] = n; });
+      mapSpec.edges.forEach(e => {
+        const u = nodeById[e.from], v = nodeById[e.to];
+        if (!u || !v) return;
+        ctx.save();
+        ctx.strokeStyle = e.color || "#94a3b8";
+        ctx.lineWidth = e.width || 1.6;
+        if (e.dashed) ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(toPxX(u.x), toPxY(u.y));
+        ctx.lineTo(toPxX(v.x), toPxY(v.y));
+        ctx.stroke();
+        ctx.restore();
+      });
+    }
+
+    // Plot nodes
+    (mapSpec.nodes || []).forEach(n => {
+      const px = toPxX(n.x);
+      const py = toPxY(n.y);
+      ctx.fillStyle = n.color || "#0a2240";
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.5;
+      if (n.shape === "square") {
+        ctx.fillRect(px - 5.5, py - 5.5, 11, 11);
+        ctx.strokeRect(px - 5.5, py - 5.5, 11, 11);
+      } else {
+        ctx.beginPath();
+        ctx.arc(px, py, 5.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.font = "700 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      ctx.fillStyle = n.textColor || n.color || "#0f172a";
+      ctx.textAlign = n.align || "center";
+      ctx.fillText(n.label, px + (n.ox || 0), py + (n.oy || -10));
+    });
+    ctx.textAlign = "left";
+    return panelH;
+  }
+
   function draw() {
     const dpr = Math.max(window.devicePixelRatio || 1, 1);
     const cssWidth = Math.max(canvas.parentElement.clientWidth - 16, 360);
@@ -69,13 +194,15 @@
     const maxW = cssWidth - padX * 2;
     const stemFont = "14.5px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
     const badgeFont = "700 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-    const tblFont = "13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-    const tblHeadFont = "700 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    const tblFont = "12.5px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    const tblHeadFont = "700 12.5px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
     const codeFont = "12.5px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
 
     const lines = wrapParagraphs(data.lines, maxW, stemFont);
     const lineH = 22;
     const badgeH = 24;
+
+    const mapH = data.map ? 214 : 0;
 
     let tblH = 0;
     const tbl = data.table;
@@ -92,7 +219,7 @@
       codeH = 14 + codeLines.length * codeLineH + 14;
     }
 
-    const cssHeight = padY * 2 + badgeH + lines.length * lineH + tblH + codeH + 6;
+    const cssHeight = padY * 2 + badgeH + lines.length * lineH + mapH + tblH + codeH + 8;
     canvas.width = Math.floor(cssWidth * dpr);
     canvas.height = Math.floor(cssHeight * dpr);
     canvas.style.width = cssWidth + "px";
@@ -105,14 +232,12 @@
     ctx.lineWidth = 1.5;
     ctx.strokeRect(0.75, 0.75, cssWidth - 1.5, cssHeight - 1.5);
 
-    // Top accent bar
     ctx.fillStyle = "#0a2240";
     ctx.fillRect(0, 0, cssWidth, 28);
     ctx.font = badgeFont;
     ctx.fillStyle = "#ffb81c";
     ctx.fillText(data.badge, padX, 19);
 
-    // Description lines
     ctx.font = stemFont;
     ctx.fillStyle = "#0f172a";
     let y = 48;
@@ -121,7 +246,11 @@
       y += lineH;
     }
 
-    // Code block if present
+    if (data.map) {
+      y += 2;
+      y += drawMap(data.map, padX, y, maxW) + 10;
+    }
+
     if (codeLines.length > 0) {
       y += 4;
       const boxH = codeLines.length * codeLineH + 16;
@@ -137,39 +266,42 @@
       y += boxH + 8;
     }
 
-    // Table if present
     if (tbl && tblH > 0) {
       y += 6;
       const cols = (tbl.headers && tbl.headers.length) || (tbl.rows && tbl.rows[0] ? tbl.rows[0].length : 1);
       const colWidths = tbl.colWeights
         ? tbl.colWeights.map(w => maxW * w)
         : Array(Math.max(cols, 1)).fill(maxW / Math.max(cols, 1));
-      const drawRowCells = (vals, rowY, isHead) => {
+      const hlSet = new Set((tbl.highlightCells || []).map(rc => rc[0] + ":" + rc[1]));
+      const drawRowCells = (vals, rowY, isHead, rIdx) => {
         let cx = padX;
         vals.forEach((val, cIdx) => {
           const w = colWidths[cIdx] || (maxW / cols);
           if (isHead) {
             ctx.fillStyle = "#e2e8f0";
             ctx.fillRect(cx, rowY, w, rowH);
+          } else if (hlSet.has(rIdx + ":" + cIdx)) {
+            ctx.fillStyle = "#dcfce7";
+            ctx.fillRect(cx, rowY, w, rowH);
           }
           ctx.strokeStyle = "#cbd5e1";
           ctx.lineWidth = 1;
           ctx.strokeRect(cx, rowY, w, rowH);
           ctx.font = isHead ? tblHeadFont : tblFont;
-          ctx.fillStyle = "#0f172a";
-          ctx.fillText(String(val), cx + 8, rowY + 18);
+          ctx.fillStyle = (!isHead && hlSet.has(rIdx + ":" + cIdx)) ? "#166534" : "#0f172a";
+          ctx.fillText(String(val), cx + 7, rowY + 18);
           cx += w;
         });
       };
       if (tbl.headers && tbl.headers.length) {
-        drawRowCells(tbl.headers, y, true);
+        drawRowCells(tbl.headers, y, true, -1);
         y += rowH;
       }
       if (tbl.rows) {
         tbl.rows.forEach((row, rIdx) => {
           ctx.fillStyle = rIdx % 2 === 0 ? "#ffffff" : "#f1f5f9";
           ctx.fillRect(padX, y, maxW, rowH);
-          drawRowCells(row, y, false);
+          drawRowCells(row, y, false, rIdx);
           y += rowH;
         });
       }

@@ -14,14 +14,14 @@
 </style>
 </head>
 <body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" ondragstart="return false;">
-<div class="alt-summary" aria-hidden="true">Assembly Shadow Price = $11.00/hr (Allowable Increase = 25), offering 15 extra hours at $6.50/hr surcharge</div>
+<div class="alt-summary" aria-hidden="true">Assembly Shadow Price = $11.00/hr (Allowable Inc = 25), 15 extra hours at $6.50/hr surcharge</div>
 <div class="wrap">
   <canvas id="qcanvas"></canvas>
 </div>
 <script>
 (function() {
-  const ENC = "GRtSU1ICBhBcRURwMDYWUFINEBLU5cESRikPXAAEREEyS19VRAQOXw8LARKH5aJBMVFRVlkSQ2IUDAVXRSRDBQtNEh4WRw9bCAAVEF9FbUMjVxBXWgAARhQKCFsGFhYAEUpVX1QJBkBGFgleEwBSQQtNQxJSBApeH0UWQAoDXxVPVFFKXwgKSAcRD10LRXoxQhFqGBZYQxZXSV4GVUsGUUsXEh4WRzdaA0UVVwsWXxULT1lGT0URVxYKFEZFA1kTQk1YVxYRC0ADAEZeBAdZE0JaX1xFERFTDwsSQUUMRUERUV9FWEUBVwoKEQhHOBpBQE1RUFoAQQhGHkRaAARSBBBKEggWPkF2AxUHQBEIUw8WGxwSFCMKXAcJRmcWAFJDThkSYV4EB10RRTZADAZTQ04ZEmB+NkN+DwgPRkdJFkMjVVxdQUtDewgGRB5FR3cNDlZHHBYhBlFEOEoSRxdZFhEbChJtPkFzFRYDXwcJT0FKUUJBH0dPEkRUVgJHSRZDRggEHAZVQR5GR1cCVUcaQUALBRAaRUEAVkc7HkU+FDUHSkRbWAJDGg4XFRtHSRZDVAESHhZHRwJIVVYQSUUUWVIbHBIUVCYZVVVEHkVHB1NAZBwSbUczUwUOB1UMC1FBSlFCQR9HTxJEVFICR0kWQ0YAHgcGR08SRFRSAkdJFkNRCRIeFkdSB0Q4Ox5FR1UODm5VW1ENF0FEX0ZpVUsEVU4ZABwHUU8SVktXBUlFBk9TDBwSBktSB0pFVhxUUGscThkSUVkBBhBcRQhHCQlL";
-  const KEY = "b9026ec2fef2ee6a";
+  const ENC = "ThMBAAEBBxMJR3AwNUZSUQERQz0QVFIDAUUSKTZGMARbQgoVDBALRUpFbhBUVlJVFWILAAEJFRFjF1sGA0ZFQXpHBhMRDw9UEypUAwMUQU0XXQoPABVAC2hHcwtGAw8EVkURDgsPAUITBEEWAwsBDVBDQxIKChRUV0VbERVGBwBcXRpBFRQNV1oREik2RksjVEIGDQwIBxFpTxJYRkJSTQ0FU09VVksfEUkQKwkSBlsVYgsAAQkVEWMXWwYDFUMSXV4UQQIUDUJARUIXCQAKFRVWAggLRhJUQUVXHRIUAkFdXhYTRSQnd3w3d0UCAwcUVkUKDwJGA19KRUEQFAULAEdWBltHO04TRwRQCQNEWRoXWQYAAQMQQhFfaUciAxMAR0UOBAsSQB0RI1sLBwpDNEZUB0NJRDFZUgFdEkY2EQhWVEFNRzQqYhMpWwgPEkFNF3APDQoRTBF6C1FHSkQiDVleFE9FIgdSETgeRxQJFBIXCzg6RycRQlYIUAkfRksJR0JKQ0lEUwEDRx5HQldXTwUBQU1HV1IBEUkQV1NET0MHAUE8ST1AZVYWRgwIAUNJXUMQSEdKQAcLRx5HQlZNUQUTT0NdVkAdEVR3TlVWQU0XAFFDOEo5E2MEUQ4HAQoPUhFLCRcVSxMfRwNRVkRPQxEITVRVRE4TAlECR0pEUFEXHUFQUEQ/bB9HUQoKMQYIUlkXEkdcOQEdVwZJVkhSVRkBTVBSSlIfAlAeVUhXVk0FH1JUOBtOE1AKVgBEXA0UWV0e";
+  const KEY = "51caefb13e2effca";
   function decodePayload(b64, key) {
     const bin = atob(b64);
     const bytes = new Uint8Array(bin.length);
@@ -62,6 +62,131 @@
     return out;
   }
 
+  function drawMap(mapSpec, padX, topY, maxW) {
+    const panelH = 200;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(padX, topY, maxW, panelH);
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(padX, topY, maxW, panelH);
+
+    // Map header caption
+    ctx.font = "700 11.5px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    ctx.fillStyle = "#0a2240";
+    ctx.fillText(mapSpec.title || "Campus Walkway Grid", padX + 10, topY + 17);
+
+    // Legend top-right
+    if (mapSpec.legend && mapSpec.legend.length) {
+      ctx.font = "11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      let lx = padX + maxW - 12;
+      for (let i = mapSpec.legend.length - 1; i >= 0; i--) {
+        const leg = mapSpec.legend[i];
+        const tw = ctx.measureText(leg.label).width;
+        lx -= tw;
+        ctx.fillStyle = "#334155";
+        ctx.fillText(leg.label, lx, topY + 17);
+        lx -= 14;
+        ctx.fillStyle = leg.color;
+        if (leg.shape === "square") {
+          ctx.fillRect(lx, topY + 8, 9, 9);
+        } else {
+          ctx.beginPath();
+          ctx.arc(lx + 4.5, topY + 12.5, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        lx -= 16;
+      }
+    }
+
+    const plotL = padX + 44;
+    const plotR = padX + maxW - 24;
+    const plotT = topY + 32;
+    const plotB = topY + panelH - 26;
+    const plotW = plotR - plotL;
+    const plotH = plotB - plotT;
+    const xMax = mapSpec.xMax || 8;
+    const yMax = mapSpec.yMax || 4;
+    const toPxX = x => plotL + (x / xMax) * plotW;
+    const toPxY = y => plotB - (y / yMax) * plotH;
+
+    // Grid lines
+    ctx.save();
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    for (let gx = 0; gx <= xMax; gx++) {
+      const px = toPxX(gx);
+      ctx.beginPath(); ctx.moveTo(px, plotT); ctx.lineTo(px, plotB); ctx.stroke();
+    }
+    for (let gy = 0; gy <= yMax; gy++) {
+      const py = toPxY(gy);
+      ctx.beginPath(); ctx.moveTo(plotL, py); ctx.lineTo(plotR, py); ctx.stroke();
+    }
+    ctx.restore();
+
+    // Axes frame & ticks
+    ctx.strokeStyle = "#94a3b8";
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(plotL, plotT, plotW, plotH);
+    ctx.font = "10.5px ui-monospace, SFMono-Regular, Menlo, monospace";
+    ctx.fillStyle = "#475569";
+    ctx.textAlign = "center";
+    for (let gx = 0; gx <= xMax; gx++) {
+      ctx.fillText(String(gx), toPxX(gx), plotB + 13);
+    }
+    ctx.fillStyle = "#64748b";
+    ctx.fillText(mapSpec.xLabel || "East-West Street Block (x)", plotL + plotW / 2, plotB + 23);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#475569";
+    for (let gy = 0; gy <= yMax; gy++) {
+      ctx.fillText(String(gy), plotL - 7, plotB - (gy / yMax) * plotH + 3.5);
+    }
+    ctx.textAlign = "left";
+
+    // Optional tour/reference dashed segments
+    if (mapSpec.edges && mapSpec.edges.length) {
+      const nodeById = {};
+      (mapSpec.nodes || []).forEach(n => { nodeById[n.id] = n; });
+      mapSpec.edges.forEach(e => {
+        const u = nodeById[e.from], v = nodeById[e.to];
+        if (!u || !v) return;
+        ctx.save();
+        ctx.strokeStyle = e.color || "#94a3b8";
+        ctx.lineWidth = e.width || 1.6;
+        if (e.dashed) ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(toPxX(u.x), toPxY(u.y));
+        ctx.lineTo(toPxX(v.x), toPxY(v.y));
+        ctx.stroke();
+        ctx.restore();
+      });
+    }
+
+    // Plot nodes
+    (mapSpec.nodes || []).forEach(n => {
+      const px = toPxX(n.x);
+      const py = toPxY(n.y);
+      ctx.fillStyle = n.color || "#0a2240";
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.5;
+      if (n.shape === "square") {
+        ctx.fillRect(px - 5.5, py - 5.5, 11, 11);
+        ctx.strokeRect(px - 5.5, py - 5.5, 11, 11);
+      } else {
+        ctx.beginPath();
+        ctx.arc(px, py, 5.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+      ctx.font = "700 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+      ctx.fillStyle = n.textColor || n.color || "#0f172a";
+      ctx.textAlign = n.align || "center";
+      ctx.fillText(n.label, px + (n.ox || 0), py + (n.oy || -10));
+    });
+    ctx.textAlign = "left";
+    return panelH;
+  }
+
   function draw() {
     const dpr = Math.max(window.devicePixelRatio || 1, 1);
     const cssWidth = Math.max(canvas.parentElement.clientWidth - 16, 360);
@@ -69,13 +194,15 @@
     const maxW = cssWidth - padX * 2;
     const stemFont = "14.5px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
     const badgeFont = "700 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-    const tblFont = "13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-    const tblHeadFont = "700 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    const tblFont = "12.5px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    const tblHeadFont = "700 12.5px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
     const codeFont = "12.5px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
 
     const lines = wrapParagraphs(data.lines, maxW, stemFont);
     const lineH = 22;
     const badgeH = 24;
+
+    const mapH = data.map ? 214 : 0;
 
     let tblH = 0;
     const tbl = data.table;
@@ -92,7 +219,7 @@
       codeH = 14 + codeLines.length * codeLineH + 14;
     }
 
-    const cssHeight = padY * 2 + badgeH + lines.length * lineH + tblH + codeH + 6;
+    const cssHeight = padY * 2 + badgeH + lines.length * lineH + mapH + tblH + codeH + 8;
     canvas.width = Math.floor(cssWidth * dpr);
     canvas.height = Math.floor(cssHeight * dpr);
     canvas.style.width = cssWidth + "px";
@@ -105,14 +232,12 @@
     ctx.lineWidth = 1.5;
     ctx.strokeRect(0.75, 0.75, cssWidth - 1.5, cssHeight - 1.5);
 
-    // Top accent bar
     ctx.fillStyle = "#0a2240";
     ctx.fillRect(0, 0, cssWidth, 28);
     ctx.font = badgeFont;
     ctx.fillStyle = "#ffb81c";
     ctx.fillText(data.badge, padX, 19);
 
-    // Description lines
     ctx.font = stemFont;
     ctx.fillStyle = "#0f172a";
     let y = 48;
@@ -121,7 +246,11 @@
       y += lineH;
     }
 
-    // Code block if present
+    if (data.map) {
+      y += 2;
+      y += drawMap(data.map, padX, y, maxW) + 10;
+    }
+
     if (codeLines.length > 0) {
       y += 4;
       const boxH = codeLines.length * codeLineH + 16;
@@ -137,39 +266,42 @@
       y += boxH + 8;
     }
 
-    // Table if present
     if (tbl && tblH > 0) {
       y += 6;
       const cols = (tbl.headers && tbl.headers.length) || (tbl.rows && tbl.rows[0] ? tbl.rows[0].length : 1);
       const colWidths = tbl.colWeights
         ? tbl.colWeights.map(w => maxW * w)
         : Array(Math.max(cols, 1)).fill(maxW / Math.max(cols, 1));
-      const drawRowCells = (vals, rowY, isHead) => {
+      const hlSet = new Set((tbl.highlightCells || []).map(rc => rc[0] + ":" + rc[1]));
+      const drawRowCells = (vals, rowY, isHead, rIdx) => {
         let cx = padX;
         vals.forEach((val, cIdx) => {
           const w = colWidths[cIdx] || (maxW / cols);
           if (isHead) {
             ctx.fillStyle = "#e2e8f0";
             ctx.fillRect(cx, rowY, w, rowH);
+          } else if (hlSet.has(rIdx + ":" + cIdx)) {
+            ctx.fillStyle = "#dcfce7";
+            ctx.fillRect(cx, rowY, w, rowH);
           }
           ctx.strokeStyle = "#cbd5e1";
           ctx.lineWidth = 1;
           ctx.strokeRect(cx, rowY, w, rowH);
           ctx.font = isHead ? tblHeadFont : tblFont;
-          ctx.fillStyle = "#0f172a";
-          ctx.fillText(String(val), cx + 8, rowY + 18);
+          ctx.fillStyle = (!isHead && hlSet.has(rIdx + ":" + cIdx)) ? "#166534" : "#0f172a";
+          ctx.fillText(String(val), cx + 7, rowY + 18);
           cx += w;
         });
       };
       if (tbl.headers && tbl.headers.length) {
-        drawRowCells(tbl.headers, y, true);
+        drawRowCells(tbl.headers, y, true, -1);
         y += rowH;
       }
       if (tbl.rows) {
         tbl.rows.forEach((row, rIdx) => {
           ctx.fillStyle = rIdx % 2 === 0 ? "#ffffff" : "#f1f5f9";
           ctx.fillRect(padX, y, maxW, rowH);
-          drawRowCells(row, y, false);
+          drawRowCells(row, y, false, rIdx);
           y += rowH;
         });
       }
