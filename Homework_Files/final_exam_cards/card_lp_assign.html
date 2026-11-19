@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BUS 104 Data Card</title>
+<style>
+  * { box-sizing: border-box; -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+  html, body { margin: 0; padding: 0; background: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow-x: hidden; }
+  .wrap { padding: 6px 8px; position: relative; }
+  canvas { display: block; width: 100%; border-radius: 6px; }
+  .alt-summary { position: absolute; left: -9999px; top: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; font-size: 0; line-height: 0; pointer-events: none; }
+  @media print { body { display: none !important; } }
+</style>
+</head>
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" ondragstart="return false;">
+<div class="alt-summary" aria-hidden="true">Crew 1: [13, 18, 15], Crew 2: [16, 14, 20], Crew 3: [19, 17, 15]</div>
+<div class="wrap">
+  <canvas id="qcanvas"></canvas>
+</div>
+<script>
+(function() {
+  const ENC = "GEEAAAJeVkMJGBogbWsWBlNXQkGEuZFBE3RRDF1ZRBczEQ0GFFheDFpWX0LauKIXIQIOAAhaVgUTeUsRUV9YWgYNFkE2S1wDX11VQBQYFFsKDQcSRAMTOhFsUBBdXRZUAg4SFBUZXgBaVkwHVllYVAZDARMDTkBBXk1LFhhaUxcCEBEIAVdWBRNXVgcVTFkaDA0HQRJWExVbSl0HGFpDXg8HCw8BSh1DHxgaI0tLX1ANDgcPEhlQDkBMS0IQUVgXR1JSURUQEwdcShgHWVteFwARBxZLW0YIX1xRDF8YRlYKEUIAFFwTEltXTwwYWlNbDBRYQzsVE0NHWVoOXRoMFxhBCgQHXVYTQBoCQmMadUUGFEI9OhlxFFpUXAtWXxQbQ0EjExJKEylSVFRAFBgUdQoMQi0HWxFNExp7Cl1VFn8CDw5DOxUTQ0FXTxEaAhZsOEEhEwNOE1ARFBhAHAkHFU9DQEVXDhFNExocUwwaaxtDOEAiFFxEQQEaFEIaHAcCQU9CQ0IIAUMfGBpGCQEUak9DOUMlS1YWEwsaThgaEgZbQU5BRB0CVxEUGEAcCQUVPj5OQURaXA1kXVEFUExFFVlDOVFICwtNEwgWUAwUFgdNUVZNRgkdUwdlRU4YGlVYBwZAW0ZXRg1fRQ==";
+  const KEY = "ccbaf93a388b8867";
+  function decodePayload(b64, key) {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) {
+      bytes[i] = bin.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+    }
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }
+
+  document.addEventListener("keydown", function(e) {
+    if ((e.ctrlKey || e.metaKey) && ["c", "x", "a", "u", "s", "p"].includes(e.key.toLowerCase())) {
+      e.preventDefault();
+    }
+  });
+
+  const data = decodePayload(ENC, KEY);
+  const canvas = document.getElementById("qcanvas");
+  const ctx = canvas.getContext("2d");
+
+  function wrapParagraphs(paras, maxWidth, font) {
+    ctx.font = font;
+    const out = [];
+    for (const para of (paras || [])) {
+      if (!String(para).trim()) { out.push(""); continue; }
+      const words = String(para).split(/\s+/);
+      let line = "";
+      for (const w of words) {
+        const test = line ? line + " " + w : w;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          out.push(line);
+          line = w;
+        } else {
+          line = test;
+        }
+      }
+      if (line) out.push(line);
+    }
+    return out;
+  }
+
+  function draw() {
+    const dpr = Math.max(window.devicePixelRatio || 1, 1);
+    const cssWidth = Math.max(canvas.parentElement.clientWidth - 16, 360);
+    const padX = 16, padY = 14;
+    const maxW = cssWidth - padX * 2;
+    const stemFont = "14.5px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    const badgeFont = "700 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    const tblFont = "13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    const tblHeadFont = "700 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    const codeFont = "12.5px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+
+    const lines = wrapParagraphs(data.lines, maxW, stemFont);
+    const lineH = 22;
+    const badgeH = 24;
+
+    let tblH = 0;
+    const tbl = data.table;
+    const rowH = 27;
+    if (tbl && ((tbl.headers && tbl.headers.length) || (tbl.rows && tbl.rows.length))) {
+      const nRows = (tbl.headers && tbl.headers.length ? 1 : 0) + (tbl.rows ? tbl.rows.length : 0);
+      tblH = 12 + nRows * rowH + 6;
+    }
+
+    let codeH = 0;
+    const codeLines = data.code || [];
+    const codeLineH = 20;
+    if (codeLines.length > 0) {
+      codeH = 14 + codeLines.length * codeLineH + 14;
+    }
+
+    const cssHeight = padY * 2 + badgeH + lines.length * lineH + tblH + codeH + 6;
+    canvas.width = Math.floor(cssWidth * dpr);
+    canvas.height = Math.floor(cssHeight * dpr);
+    canvas.style.width = cssWidth + "px";
+    canvas.style.height = cssHeight + "px";
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = "#f8fafc";
+    ctx.fillRect(0, 0, cssWidth, cssHeight);
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(0.75, 0.75, cssWidth - 1.5, cssHeight - 1.5);
+
+    // Top accent bar
+    ctx.fillStyle = "#0a2240";
+    ctx.fillRect(0, 0, cssWidth, 28);
+    ctx.font = badgeFont;
+    ctx.fillStyle = "#ffb81c";
+    ctx.fillText(data.badge, padX, 19);
+
+    // Description lines
+    ctx.font = stemFont;
+    ctx.fillStyle = "#0f172a";
+    let y = 48;
+    for (const ln of lines) {
+      ctx.fillText(ln, padX, y);
+      y += lineH;
+    }
+
+    // Code block if present
+    if (codeLines.length > 0) {
+      y += 4;
+      const boxH = codeLines.length * codeLineH + 16;
+      ctx.fillStyle = "#0f172a";
+      ctx.fillRect(padX, y, maxW, boxH);
+      ctx.font = codeFont;
+      ctx.fillStyle = "#f8fafc";
+      let cy = y + 20;
+      for (const cln of codeLines) {
+        ctx.fillText(cln, padX + 12, cy);
+        cy += codeLineH;
+      }
+      y += boxH + 8;
+    }
+
+    // Table if present
+    if (tbl && tblH > 0) {
+      y += 6;
+      const cols = (tbl.headers && tbl.headers.length) || (tbl.rows && tbl.rows[0] ? tbl.rows[0].length : 1);
+      const colWidths = tbl.colWeights
+        ? tbl.colWeights.map(w => maxW * w)
+        : Array(Math.max(cols, 1)).fill(maxW / Math.max(cols, 1));
+      const drawRowCells = (vals, rowY, isHead) => {
+        let cx = padX;
+        vals.forEach((val, cIdx) => {
+          const w = colWidths[cIdx] || (maxW / cols);
+          if (isHead) {
+            ctx.fillStyle = "#e2e8f0";
+            ctx.fillRect(cx, rowY, w, rowH);
+          }
+          ctx.strokeStyle = "#cbd5e1";
+          ctx.lineWidth = 1;
+          ctx.strokeRect(cx, rowY, w, rowH);
+          ctx.font = isHead ? tblHeadFont : tblFont;
+          ctx.fillStyle = "#0f172a";
+          ctx.fillText(String(val), cx + 8, rowY + 18);
+          cx += w;
+        });
+      };
+      if (tbl.headers && tbl.headers.length) {
+        drawRowCells(tbl.headers, y, true);
+        y += rowH;
+      }
+      if (tbl.rows) {
+        tbl.rows.forEach((row, rIdx) => {
+          ctx.fillStyle = rIdx % 2 === 0 ? "#ffffff" : "#f1f5f9";
+          ctx.fillRect(padX, y, maxW, rowH);
+          drawRowCells(row, y, false);
+          y += rowH;
+        });
+      }
+    }
+  }
+
+  draw();
+  window.addEventListener("resize", draw);
+})();
+</script>
+</body>
+</html>
